@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35209.166
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FuelPriceWizard.API", "FuelPriceWizzard.API\FuelPriceWizard.API.csproj", "{E53B3790-D032-43AF-9FE0-BD4DB0000635}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FuelPriceWizard.BusinessLogic", "FuelPriceWizzard.BusinessLogic\FuelPriceWizard.BusinessLogic.csproj", "{6DC27005-E8BB-4CBE-8490-75906AC42CA0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E53B3790-D032-43AF-9FE0-BD4DB0000635}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E53B3790-D032-43AF-9FE0-BD4DB0000635}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E53B3790-D032-43AF-9FE0-BD4DB0000635}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E53B3790-D032-43AF-9FE0-BD4DB0000635}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6DC27005-E8BB-4CBE-8490-75906AC42CA0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6DC27005-E8BB-4CBE-8490-75906AC42CA0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6DC27005-E8BB-4CBE-8490-75906AC42CA0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6DC27005-E8BB-4CBE-8490-75906AC42CA0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {63515711-9563-47D1-8C6C-2CF59CD194D6}
+	EndGlobalSection
+EndGlobal
