@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FuelPriceWizard.API", "Fuel
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FuelPriceWizard.BusinessLogic", "FuelPriceWizzard.BusinessLogic\FuelPriceWizard.BusinessLogic.csproj", "{6DC27005-E8BB-4CBE-8490-75906AC42CA0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FuelPriceWizard.DataAccess", "FuelPriceWizard.DataAccess\FuelPriceWizard.DataAccess.csproj", "{5618D5C7-C6D4-45EC-AB09-8503AD31F1A5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{6DC27005-E8BB-4CBE-8490-75906AC42CA0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6DC27005-E8BB-4CBE-8490-75906AC42CA0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6DC27005-E8BB-4CBE-8490-75906AC42CA0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5618D5C7-C6D4-45EC-AB09-8503AD31F1A5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5618D5C7-C6D4-45EC-AB09-8503AD31F1A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5618D5C7-C6D4-45EC-AB09-8503AD31F1A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5618D5C7-C6D4-45EC-AB09-8503AD31F1A5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

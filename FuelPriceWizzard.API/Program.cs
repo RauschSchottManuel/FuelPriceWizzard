@@ -1,4 +1,5 @@
 using FuelPriceWizard.BusinessLogic;
+using FuelPriceWizard.DataAccess;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +11,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddFuelPriceWizardBusinessLogic();
+builder.Services.AddFuelPriceWizardDataAccess("Test");
 
 var app = builder.Build();
 
