@@ -15,7 +15,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Models\" />
+    <ProjectReference Include="..\FuelPriceWizard.DataAccess\FuelPriceWizard.DataAccess.csproj" />
+    <ProjectReference Include="..\FuelPriceWizard.Domain\FuelPriceWizard.Domain.csproj" />
   </ItemGroup>
 
 </Project>
