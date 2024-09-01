@@ -1,5 +1,4 @@
-﻿using FuelPriceWizard.DataAccess.Implementation;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FuelPriceWizard.DataAccess
