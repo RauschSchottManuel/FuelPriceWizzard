@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using FuelPriceWizard.DataAccess.Implementation;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace FuelPriceWizard.DataAccess
 {
@@ -8,7 +10,7 @@ namespace FuelPriceWizard.DataAccess
         {
             services.AddDbContext<FuelPriceWizardDbContext>(o =>
             {
-                //o.UseSqlServer();
+                o.UseSqlServer(connectionString);
                 o.EnableDetailedErrors();
             });
             return services;

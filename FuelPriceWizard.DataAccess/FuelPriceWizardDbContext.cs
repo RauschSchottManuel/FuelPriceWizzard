@@ -11,7 +11,7 @@ namespace FuelPriceWizard.DataAccess
 
         public FuelPriceWizardDbContext(DbContextOptions<FuelPriceWizardDbContext> options): base(options)
         {
-            
+
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
