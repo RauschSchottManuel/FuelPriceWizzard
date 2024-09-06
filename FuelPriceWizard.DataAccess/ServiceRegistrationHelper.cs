@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using FuelPriceWizard.DataAccess.Entities.Mapping;
+using FuelPriceWizard.DataAccess.Implementation;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FuelPriceWizard.DataAccess
@@ -12,6 +14,18 @@ namespace FuelPriceWizard.DataAccess
                 o.UseSqlServer(connectionString);
                 o.EnableDetailedErrors();
             });
+
+            services.AddAutoMapper(
+                typeof(AddressMappingProfile),
+                typeof(CurrencyMappingProfile),
+                typeof(FuelTypeMappingProfile),
+                typeof(GasStationMappingProfile),
+                typeof(OpeningHoursMappingProfile),
+                typeof(PriceReadingMappingProfile)
+            );
+
+            //services.AddScoped<IPriceRepository, PriceRepository>();
+
             return services;
         }
     }

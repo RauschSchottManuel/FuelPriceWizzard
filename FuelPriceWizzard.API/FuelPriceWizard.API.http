@@ -1,6 +1,6 @@
-@FuelPriceWizzard.API_HostAddress = http://localhost:5175
+@FuelPriceWizzard.API_HostAddress = https://localhost:44325
 
-GET {{FuelPriceWizzard.API_HostAddress}}/weatherforecast/
+GET {{FuelPriceWizzard.API_HostAddress}}/WeatherForecast
 Accept: application/json
 
 ###

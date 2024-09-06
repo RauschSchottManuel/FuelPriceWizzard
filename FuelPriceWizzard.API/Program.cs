@@ -16,7 +16,7 @@ builder.Host.UseSerilog((context, configuration) =>
     configuration.ReadFrom.Configuration(context.Configuration));
 
 builder.Services.AddFuelPriceWizardBusinessLogic();
-builder.Services.AddFuelPriceWizardDataAccess(builder.Configuration.GetConnectionString("FuelPriceWizard")!);
+builder.Services.AddFuelPriceWizardDataAccess(builder.Configuration.GetConnectionString("FuelPriceWizard_Dev")!);
 
 var app = builder.Build();
 
