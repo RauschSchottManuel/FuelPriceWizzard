@@ -3,17 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.12.35209.166
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FuelPriceWizard.API", "FuelPriceWizzard.API\FuelPriceWizard.API.csproj", "{E53B3790-D032-43AF-9FE0-BD4DB0000635}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FuelPriceWizard.DataAccess", "FuelPriceWizard.DataAccess\FuelPriceWizard.DataAccess.csproj", "{5618D5C7-C6D4-45EC-AB09-8503AD31F1A5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FuelPriceWizard.BusinessLogic", "FuelPriceWizzard.BusinessLogic\FuelPriceWizard.BusinessLogic.csproj", "{6DC27005-E8BB-4CBE-8490-75906AC42CA0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FuelPriceWizard.DataCollector", "FuelPriceWizard.DataCollector\FuelPriceWizard.DataCollector.csproj", "{258C2774-E22D-4A17-B434-D767848E4F58}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FuelPriceWizard.DataAccess", "FuelPriceWizard.DataAccess\FuelPriceWizard.DataAccess.csproj", "{5618D5C7-C6D4-45EC-AB09-8503AD31F1A5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MockUpFuelPriceSourceImplementation", "MockUpFuelPriceSourceImplementation\MockUpFuelPriceSourceImplementation.csproj", "{2B9BEE3E-A34C-4CC0-A334-7FBCDDD41399}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FuelPriceWizard.DataCollector", "FuelPriceWizard.DataCollector\FuelPriceWizard.DataCollector.csproj", "{258C2774-E22D-4A17-B434-D767848E4F58}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FuelPriceWizard.Domain", "FuelPriceWizard.Domain\FuelPriceWizard.Domain.csproj", "{FEB21D6A-EADF-48AB-8C85-E2E3043DB550}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MockUpFuelPriceSourceImplementation", "MockUpFuelPriceSourceImplementation\MockUpFuelPriceSourceImplementation.csproj", "{2B9BEE3E-A34C-4CC0-A334-7FBCDDD41399}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FuelPriceWizard.API", "FuelPriceWizard.API\FuelPriceWizard.API.csproj", "{BAACB026-B01C-4D68-AC14-957FB8B9A02D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FuelPriceWizard.Domain", "FuelPriceWizard.Domain\FuelPriceWizard.Domain.csproj", "{FEB21D6A-EADF-48AB-8C85-E2E3043DB550}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FuelPriceWizard.BusinessLogic", "FuelPriceWizard.BusinessLogic\FuelPriceWizard.BusinessLogic.csproj", "{BA844680-18EB-4664-AC8B-92D34FD2C5AC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,14 +21,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{E53B3790-D032-43AF-9FE0-BD4DB0000635}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E53B3790-D032-43AF-9FE0-BD4DB0000635}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E53B3790-D032-43AF-9FE0-BD4DB0000635}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E53B3790-D032-43AF-9FE0-BD4DB0000635}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6DC27005-E8BB-4CBE-8490-75906AC42CA0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6DC27005-E8BB-4CBE-8490-75906AC42CA0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6DC27005-E8BB-4CBE-8490-75906AC42CA0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6DC27005-E8BB-4CBE-8490-75906AC42CA0}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5618D5C7-C6D4-45EC-AB09-8503AD31F1A5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5618D5C7-C6D4-45EC-AB09-8503AD31F1A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5618D5C7-C6D4-45EC-AB09-8503AD31F1A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -45,6 +37,14 @@ Global
 		{FEB21D6A-EADF-48AB-8C85-E2E3043DB550}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FEB21D6A-EADF-48AB-8C85-E2E3043DB550}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FEB21D6A-EADF-48AB-8C85-E2E3043DB550}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BAACB026-B01C-4D68-AC14-957FB8B9A02D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BAACB026-B01C-4D68-AC14-957FB8B9A02D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BAACB026-B01C-4D68-AC14-957FB8B9A02D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BAACB026-B01C-4D68-AC14-957FB8B9A02D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BA844680-18EB-4664-AC8B-92D34FD2C5AC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BA844680-18EB-4664-AC8B-92D34FD2C5AC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BA844680-18EB-4664-AC8B-92D34FD2C5AC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BA844680-18EB-4664-AC8B-92D34FD2C5AC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

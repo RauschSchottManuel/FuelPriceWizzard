@@ -21,8 +21,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\FuelPriceWizard.BusinessLogic\FuelPriceWizard.BusinessLogic.csproj" />
     <ProjectReference Include="..\FuelPriceWizard.DataAccess\FuelPriceWizard.DataAccess.csproj" />
-    <ProjectReference Include="..\FuelPriceWizzard.BusinessLogic\FuelPriceWizard.BusinessLogic.csproj" />
+    <ProjectReference Include="..\FuelPriceWizard.BusinessLogic\FuelPriceWizard.BusinessLogic.csproj" />
   </ItemGroup>
 
   <ItemGroup>
