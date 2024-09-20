@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="appsettings.MockUpFuelPriceSourceImplementation.MockUpFuelPriceService.json">
+    <None Update="appsettings.MockUpFuelPriceService.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

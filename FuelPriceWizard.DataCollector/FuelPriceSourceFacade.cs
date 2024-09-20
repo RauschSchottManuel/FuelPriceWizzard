@@ -1,6 +1,7 @@
 ﻿using FuelPriceWizard.BusinessLogic;
 using FuelPriceWizard.BusinessLogic.Modules.Enums;
 using FuelPriceWizard.DataAccess;
+using FuelPriceWizard.DataCollector.ConfigDefinitions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
@@ -13,14 +14,17 @@ namespace FuelPriceWizard.DataCollector
 
         public FuelPriceSourceFacade(IConfiguration config)
         {
-            var assemblySection = config.GetSection("ImplementationAssembly");
-            var assemblyName = assemblySection.GetValue<string>("Type");
+            var assemblySections = config.GetSection("ImplementationAssemblies")
+                .Get<List<AssemblyDefinition>>();
 
+            var assemblySection = assemblySections.FirstOrDefault(s => s.Type == typeof(T).FullName);
+
+            var assemblyName = assemblySection.Type;
 
             var assemblyConfig = new ConfigurationBuilder()
                 .AddConfiguration(config)
                 .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile($"appsettings.{assemblyName}.json", optional: true, reloadOnChange: true)
+                .AddJsonFile($"appsettings.{assemblyName.Split('.')[^1]}.json", optional: true, reloadOnChange: true)
                 .Build();
 
             var logger = new LoggerConfiguration().ReadFrom.Configuration(assemblyConfig)
@@ -45,6 +49,11 @@ namespace FuelPriceWizard.DataCollector
         public object FetchPricesByLocationAndFuelType(int lat, int lon, FuelType fuelType, int maxReturnResults = 1)
         {
             return service.FetchPricesByLocationAndFuelType(lat, lon, fuelType, maxReturnResults);
+        }
+
+        public IConfigurationSection GetFetchSettingsSection()
+        {
+            return service.GetFetchSettingsSection();
         }
     }
 }

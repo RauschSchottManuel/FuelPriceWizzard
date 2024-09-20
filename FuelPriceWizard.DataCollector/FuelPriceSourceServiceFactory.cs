@@ -1,5 +1,5 @@
-﻿using FuelPriceWizard.BusinessLogic;
-using FuelPriceWizard.BusinessLogic.Modules.Exceptions;
+﻿using FuelPriceWizard.BusinessLogic.Modules.Exceptions;
+using FuelPriceWizard.DataCollector.ConfigDefinitions;
 using Microsoft.Extensions.Configuration;
 using System.Reflection;
 
@@ -7,24 +7,32 @@ namespace FuelPriceWizard.DataCollector
 {
     public sealed class FuelPriceSourceServiceFactory
     {
-        public static IFuelPriceSourceFacade GetFuelPriceSourceService(IConfiguration config)
+        public static List<IFuelPriceSourceFacade> GetFuelPriceSourceServices(IConfiguration config)
         {
-            var configSection = config.GetSection("ImplementationAssembly");
-            var assemblyName = configSection?.GetValue<string>("Type");
-            var assemblyFilePath = configSection?.GetValue<string>("FilePath");
+            var result = new List<IFuelPriceSourceFacade>();
 
-            if (string.IsNullOrEmpty(assemblyName) || string.IsNullOrEmpty(assemblyFilePath))
+            var configSections = config.GetSection("ImplementationAssemblies")
+                .Get<List<AssemblyDefinition>>();
+
+            foreach (var configSection in configSections)
             {
-                throw new FuelPriceWizardLogicException("Assembly for FuelPriceSourceService implementation was not defined in configuration.");
+                var assemblyName = configSection.Type;
+                var assemblyFilePath = configSection.FilePath;
+
+                if (string.IsNullOrEmpty(assemblyName) || string.IsNullOrEmpty(assemblyFilePath))
+                {
+                    throw new FuelPriceWizardLogicException($"Assembly for FuelPriceSourceService implementation of Type \"{assemblyName}\"was not defined in configuration.");
+                }
+
+                var assembly = Assembly.LoadFrom(assemblyFilePath);
+                var type = assembly.GetType(assemblyName);
+
+                var instanceType = typeof(FuelPriceSourceFacade<>).MakeGenericType(type);
+
+                result.Add((IFuelPriceSourceFacade)(Activator.CreateInstance(instanceType, config) ?? throw new FuelPriceWizardLogicException("Failed to create instance of FuelPriceSourceFacade.")));
             }
 
-            var assembly = Assembly.LoadFrom(assemblyFilePath);
-            var type = assembly.GetType(assemblyName);
-
-            var instanceType = typeof(FuelPriceSourceFacade<>).MakeGenericType(type);
-
-            return (IFuelPriceSourceFacade)(Activator.CreateInstance(instanceType, config) 
-                ?? throw new FuelPriceWizardLogicException("Failed to create instance of FuelPriceSourceFacade."));
+            return result;
         }
     }
 }
