@@ -4,7 +4,7 @@
 
 > ***NOTE***: This project is still under development and the readme files are object to change.
 
-This project aims to collect and display the fuel prices of gas station over a longer time period.
+This project aims to collect and display the fuel prices of gas stations over a longer time period.
 
 ## Sub projects
 The following sub projects are included in this repository:
