@@ -1,4 +1,4 @@
-[![.NET](https://github.com/RauschSchottManuel/FuelPriceWizzard/actions/workflows/dotnet.yml/badge.svg)](https://github.com/RauschSchottManuel/FuelPriceWizzard/actions/workflows/dotnet.yml)
+[![.NET](https://github.com/RauschSchottManuel/FuelPriceWizzard/actions/workflows/dotnet.yml/badge.svg)](https://github.com/RauschSchottManuel/FuelPriceWizzard/actions/workflows/dotnet.yml) [![Angular](https://github.com/RauschSchottManuel/FuelPriceWizzard/actions/workflows/angular.yml/badge.svg)](https://github.com/RauschSchottManuel/FuelPriceWizzard/actions/workflows/angular.yml)
 
 # FuelPriceWizard
 
