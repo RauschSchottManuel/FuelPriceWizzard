@@ -1,5 +1,4 @@
-# This workflow will build a .NET project
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
+# This workflow will build, test and deploy the .NET projects
 
 name: .NET
 
@@ -10,7 +9,7 @@ on:
     branches: ["main"]
 
 env:
-
+  DOTNET_VERSION: '8.0.x'
 
 jobs:
   build:
@@ -22,7 +21,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: Restore dependencies
         run: dotnet restore
@@ -38,7 +37,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: Run tests
         run: dotnet test -c Release --no-build
