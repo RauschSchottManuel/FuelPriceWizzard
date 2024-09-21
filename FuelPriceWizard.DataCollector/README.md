@@ -4,7 +4,7 @@ This sub-project serves as the base project for data collection services. The ac
 ## Create a new data collection service
 You can create a class library with a service class, specific appsettings and utilize DI (DependencyInjection)
 
-### 1. Create a new ClassLibrary in this solution
+### 1. Create a new ClassLibrary in this solution naming it ``<YourServiceName>CollectorService``
 ### 2. Add an ``appsettings.json`` file naming it ``appsettings.<ServiceClassName>.json``
 In the appsettings file you have to define fetch settings as well as any service specific settings.
 The FetchSettings section is defined as follows:
