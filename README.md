@@ -1,3 +1,5 @@
+[![.NET](https://github.com/RauschSchottManuel/FuelPriceWizzard/actions/workflows/dotnet.yml/badge.svg)](https://github.com/RauschSchottManuel/FuelPriceWizzard/actions/workflows/dotnet.yml)
+
 # FuelPriceWizard
 
 > ***NOTE***: This project is still under development and the readme files are object to change.
