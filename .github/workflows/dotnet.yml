@@ -5,8 +5,22 @@ name: .NET
 on:
   push:
     branches: ["main"]
+    paths:
+      - "FuelPriceWizard.API/**"
+      - "FuelPriceWizard.BusinessLogic/**"
+      - "FuelPriceWizard.DataAccess/**"
+      - "FuelPriceWizard.DataCollector/**"
+      - "FuelPriceWizard.Domain/**"
+      - "**CollectorService"
   pull_request:
     branches: ["main"]
+    paths:
+      - "FuelPriceWizard.API/**"
+      - "FuelPriceWizard.BusinessLogic/**"
+      - "FuelPriceWizard.DataAccess/**"
+      - "FuelPriceWizard.DataCollector/**"
+      - "FuelPriceWizard.Domain/**"
+      - "**CollectorService"
 
 env:
   DOTNET_VERSION: '8.0.x'

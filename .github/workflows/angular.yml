@@ -3,8 +3,12 @@ name: Angular
 on:
   push:
     branches: ["main"]
+    paths:
+      - "FuelPriceWizard.UI/**"
   pull_request:
     branches: ["main"]
+    paths:
+      - "FuelPriceWizard.UI/**"
 
 env:
   NODE_VERSION: '22.8.x'
