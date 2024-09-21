@@ -23,9 +23,11 @@ jobs:
 
       - name: Install dependencies
         run: npm install
+        working-directory: FuelPriceWizard.UI/fuelpricewizard
 
       - name: Build
         run: npm start
+        working-directory: FuelPriceWizard.UI/fuelpricewizard
   test:
     runs-on: ubuntu-latest
     steps:
@@ -39,3 +41,4 @@ jobs:
 
       - name: Build
         run: npm run test
+        working-directory: FuelPriceWizard.UI/fuelpricewizard
