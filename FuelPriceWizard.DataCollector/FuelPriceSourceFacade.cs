@@ -15,9 +15,14 @@ namespace FuelPriceWizard.DataCollector
         public FuelPriceSourceFacade(IConfiguration config)
         {
             var assemblySections = config.GetSection("ImplementationAssemblies")
-                .Get<List<AssemblyDefinition>>();
+                .Get<List<AssemblyDefinition>>() ?? [];
 
             var assemblySection = assemblySections.FirstOrDefault(s => s.Type == typeof(T).FullName);
+
+            if(assemblySection is null)
+            {
+                throw new NullReferenceException($"No assembly entry for {typeof(T).FullName} was found!");
+            }
 
             var assemblyName = assemblySection.Type;
 
@@ -33,12 +38,12 @@ namespace FuelPriceWizard.DataCollector
             var serviceCollection = new ServiceCollection();
             serviceCollection.AddSingleton<IConfiguration>(assemblyConfig)
                 .AddLogging(builder => builder.AddSerilog(logger: logger, dispose: true))
-                .AddFuelPriceWizardDataAccess(assemblyConfig.GetConnectionString("Default"))
+                .AddFuelPriceWizardDataAccess(assemblyConfig.GetConnectionString("Default")!)
                 .AddHttpClient()
                 .AddScoped<IFuelPriceSourceService, T>();
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
-            service = serviceProvider.GetService<IFuelPriceSourceService>();
+            service = serviceProvider.GetService<IFuelPriceSourceService>()!;
         }
 
         public object FetchPricesByLocation(int lat, int lon)
