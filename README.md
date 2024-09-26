@@ -1,5 +1,4 @@
-[![.NET Build & Tests](https://github.com/RauschSchottManuel/FuelPriceWizzard/actions/workflows/dotnet.yml/badge.svg)](https://github.com/RauschSchottManuel/FuelPriceWizzard/actions/workflows/dotnet.yml) [![Angular Build & Tests](https://github.com/RauschSchottManuel/FuelPriceWizzard/actions/workflows/angular.yml/badge.svg)](https://github.com/RauschSchottManuel/FuelPriceWizzard/actions/workflows/angular.yml)
-
+[![.NET Build & Tests](https://github.com/RauschSchottManuel/FuelPriceWizzard/actions/workflows/dotnet.yml/badge.svg)](https://github.com/RauschSchottManuel/FuelPriceWizzard/actions/workflows/dotnet.yml) [![Angular Build & Tests](https://github.com/RauschSchottManuel/FuelPriceWizzard/actions/workflows/angular.yml/badge.svg)](https://github.com/RauschSchottManuel/FuelPriceWizzard/actions/workflows/angular.yml) [![Quality Gate Status](https://sonarqube.mrausch-schott.com/api/project_badges/measure?project=RauschSchottManuel_FuelPriceWizzard_ee84ae87-553d-4321-b870-ec9b8be6b491&metric=alert_status&token=sqb_a745b528a4aeb4835b34700c9206e76398e6fb30)](https://sonarqube.mrausch-schott.com/dashboard?id=RauschSchottManuel_FuelPriceWizzard_ee84ae87-553d-4321-b870-ec9b8be6b491)
 # FuelPriceWizard
 
 > ***NOTE***: This project is still under development and the readme files are object to change.
