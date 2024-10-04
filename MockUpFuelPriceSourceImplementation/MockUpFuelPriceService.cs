@@ -1,5 +1,6 @@
 ﻿using FuelPriceWizard.BusinessLogic;
-using FuelPriceWizard.BusinessLogic.Modules.Enums;
+using Enums = FuelPriceWizard.BusinessLogic.Modules.Enums;
+using FuelPriceWizard.Domain.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
@@ -17,20 +18,20 @@ namespace MockUpFuelPriceSourceImplementation
             _logger = logger;
         }
 
-        public object FetchPricesByLocation(int lat, int lon)
-        {
-            return _httpClient != null;
-        }
-
-        public object FetchPricesByLocationAndFuelType(int lat, int lon, FuelType fuelType, int maxReturnResults = 1)
-        {
-            _logger.LogDebug("Test nein");
-            return _configuration;
-        }
-
         public IConfigurationSection GetFetchSettingsSection()
         {
             return _configuration.GetSection("FetchSettings");
+        }
+
+        public Task<IEnumerable<PriceReading>> FetchPricesByLocationAsync(decimal lat, decimal lon, bool includeClosed = true)
+        {
+            return Task.FromResult<IEnumerable<PriceReading>>([]);
+        }
+
+        public Task<IEnumerable<PriceReading>> FetchPricesByLocationAndFuelTypeAsync(decimal lat, decimal lon, Enums.FuelType fuelType, bool includeClosed = true)
+        {
+            _logger.LogDebug("Test nein");
+            return Task.FromResult<IEnumerable<PriceReading>>([]);
         }
     }
 }

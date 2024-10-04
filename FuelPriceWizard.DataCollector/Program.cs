@@ -1,6 +1,7 @@
 ﻿using FuelPriceWizard.BusinessLogic.Modules.Enums;
 using FuelPriceWizard.DataCollector.ConfigDefinitions;
 using Microsoft.Extensions.Configuration;
+using Serilog;
 
 namespace FuelPriceWizard.DataCollector
 {
@@ -8,11 +9,11 @@ namespace FuelPriceWizard.DataCollector
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Zeas");
-
             IConfiguration config = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json", reloadOnChange: true, optional: false)
                 .Build();
+
+            var logger = new LoggerConfiguration().ReadFrom.Configuration(config).CreateLogger();
 
             //Load impl. assemblies
             var services = FuelPriceSourceServiceFactory.GetFuelPriceSourceServices(config);
@@ -20,20 +21,45 @@ namespace FuelPriceWizard.DataCollector
 
             foreach (var service in services)
             {
+                var serviceClassName = service.GetType().GetGenericArguments().First();
+
                 var fetchSettings = service.GetFetchSettingsSection().Get<FetchSettings>();
 
-                var interval = fetchSettings.IntervalUnit switch
+                if(fetchSettings is null)
+                {
+                    logger.Error("No FetchSettings specified in appsettings.{0}.json or GetFetchSettingsSection() not implemented! Skipping creation of task for {0}", serviceClassName);
+                    continue;
+                }
+
+                var interval = fetchSettings!.IntervalUnit switch
                 {
                     FetchSettings.TimeUnit.Second => new TimeSpan(0, 0, fetchSettings.IntervalValue),
                     FetchSettings.TimeUnit.Minute => new TimeSpan(0, fetchSettings.IntervalValue, 0),
                     FetchSettings.TimeUnit.Hour => new TimeSpan(fetchSettings.IntervalValue, 0, 0),
-                    _ => throw new ArgumentException("Invalid fetch interval unit specified.")
+                    _ => TimeSpan.Zero,
                 };
+
+                if(interval == TimeSpan.Zero)
+                {
+                    logger.Error("Invalid fetch interval specified! Skipping creation of task for {0}", serviceClassName);
+                    continue;
+                }
+
+
+                logger.Information("Starting task for service {0}", serviceClassName);
 
                 tasks.Add(PeriodicTask(async () =>
                 {
-                    service.FetchPricesByLocation(0, 1);    //TODO: impl. location config dings
-                    service.FetchPricesByLocationAndFuelType(0, 1, FuelType.Diesel);
+                    //await service.FetchPricesByLocationAsync(0, 1);    //TODO: impl. location config dings
+                    var dieselPrice = await service.FetchPricesByLocationAndFuelTypeAsync(48.287689M, 14.107360M, FuelType.Diesel);
+
+                    var prices = await service.FetchPricesByLocationAsync(48.287689M, 14.107360M);
+
+                    foreach (var price in prices)
+                    {
+                        logger.Debug("Price {0} {1}", price.FuelType.DisplayValue, price.Value);
+                    }
+
                 }, interval, fetchSettings.ExcludedWeekdays, fetchSettings.StartNextFullHour));
             }
 

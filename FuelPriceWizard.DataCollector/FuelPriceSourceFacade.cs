@@ -1,7 +1,8 @@
 ﻿using FuelPriceWizard.BusinessLogic;
-using FuelPriceWizard.BusinessLogic.Modules.Enums;
+using Enums = FuelPriceWizard.BusinessLogic.Modules.Enums;
 using FuelPriceWizard.DataAccess;
 using FuelPriceWizard.DataCollector.ConfigDefinitions;
+using FuelPriceWizard.Domain.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
@@ -46,14 +47,14 @@ namespace FuelPriceWizard.DataCollector
             service = serviceProvider.GetService<IFuelPriceSourceService>()!;
         }
 
-        public object FetchPricesByLocation(int lat, int lon)
+        public async Task<IEnumerable<PriceReading>> FetchPricesByLocationAsync(decimal lat, decimal lon, bool includeClosed = true)
         {
-            return service.FetchPricesByLocation(lat, lon);
+            return await service.FetchPricesByLocationAsync(lat, lon, includeClosed);
         }
 
-        public object FetchPricesByLocationAndFuelType(int lat, int lon, FuelType fuelType, int maxReturnResults = 1)
+        public async Task<IEnumerable<PriceReading>> FetchPricesByLocationAndFuelTypeAsync(decimal lat, decimal lon, Enums.FuelType fuelType, bool includeClosed = true)
         {
-            return service.FetchPricesByLocationAndFuelType(lat, lon, fuelType, maxReturnResults);
+            return await service.FetchPricesByLocationAndFuelTypeAsync(lat, lon, fuelType, includeClosed);
         }
 
         public IConfigurationSection GetFetchSettingsSection()
