@@ -10,20 +10,15 @@ using FuelType = FuelPriceWizard.Domain.Models.FuelType;
 
 namespace EControlCollectorService
 {
-    public class EControlCollectorService : IFuelPriceSourceService
+    public class EControlCollectorService : BaseFuelPriceSourceService, IFuelPriceSourceService
     {
         private readonly ILogger<EControlCollectorService> _logger;
-        private readonly IConfiguration _configuration;
         private readonly HttpClient _httpClient;
-        public EControlCollectorService(IConfiguration config, HttpClient httpClient, ILogger<EControlCollectorService> logger)
+        public EControlCollectorService(IConfiguration config, HttpClient httpClient, ILogger<EControlCollectorService> logger) : base(config)
         {
-            _configuration = config;
             _httpClient = httpClient;
             _logger = logger;
         }
-
-        public IConfigurationSection GetFetchSettingsSection() =>
-            _configuration.GetSection("FetchSettings");
 
         public async Task<IEnumerable<PriceReading>> FetchPricesByLocationAsync(decimal lat, decimal lon, bool includeClosed = true)
         {
@@ -56,7 +51,7 @@ namespace EControlCollectorService
                 { "includeClosed", includeClosed.ToString() }
             };
 
-            var requestUrl = string.Concat(_configuration.GetValue<string>("BaseFetchAddress"),
+            var requestUrl = string.Concat(this.Configuration.GetValue<string>("BaseFetchAddress"),
                 "/search/gas-stations/by-address",
                 $"?{string.Join('&', queryParams.Select(p => $"{Uri.EscapeDataString(p.Key)}={Uri.EscapeDataString(p.Value)}"))}");
 

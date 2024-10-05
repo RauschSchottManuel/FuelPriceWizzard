@@ -25,9 +25,7 @@ The FetchSettings section is defined as follows:
 | IntervalUnit | Defines the interval unit of the interval value (every x units) | <ul><li>Second (every x seconds)</li><li>Minute (every x minutes)</li><li>Hour (every x hours)</li></ul> |
 | StartNextFullHour | Defines if the collection circle is run with the interval starting on the next full hour or immediatly with the start of the service<br>``(e.g. service is started at 12:43 but the first collection circle starts at 13:00)`` | <ul><li>true</li><li>false</li></ul> |
 
-### 3. Create the entrypoint class implementing the ``IFuelPriceSourceService`` interface included in the ``FuelPriceWizard.BusinessLogic`` project
-
-To learn more about the ``IFuelPriceSourceService`` interface click [here](../FuelPriceWizard.BusinessLogic/IFuelPriceSourceService.cs).
+### 3. Create the entry-point class extending the [BaseFuelPriceSourceService](../FuelPriceWizard.BusinessLogic/BaseFuelPriceSourceService.cs) class and implementing the [IFuelPriceSourceService](../FuelPriceWizard.BusinessLogic/IFuelPriceSourceService.cs) interface included in the ``FuelPriceWizard.BusinessLogic`` project
 
 ## Adding a new service
 To add a new service create a new project and add a new entry in the appsettings.json file under the **ImplementationAssemblies** section:

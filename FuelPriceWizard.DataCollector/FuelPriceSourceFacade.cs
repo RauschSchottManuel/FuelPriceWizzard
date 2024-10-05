@@ -6,6 +6,7 @@ using FuelPriceWizard.Domain.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
+using FuelPriceWizard.BusinessLogic.Modules.Exceptions;
 
 namespace FuelPriceWizard.DataCollector
 {
@@ -18,12 +19,8 @@ namespace FuelPriceWizard.DataCollector
             var assemblySections = config.GetSection("ImplementationAssemblies")
                 .Get<List<AssemblyDefinition>>() ?? [];
 
-            var assemblySection = assemblySections.FirstOrDefault(s => s.Type == typeof(T).FullName);
-
-            if(assemblySection is null)
-            {
-                throw new NullReferenceException($"No assembly entry for {typeof(T).FullName} was found!");
-            }
+            var assemblySection = assemblySections.Find(s => s.Type == typeof(T).FullName)
+                ?? throw new FuelPriceWizardLogicException($"No assembly entry for {typeof(T).FullName} was found!");
 
             var assemblyName = assemblySection.Type;
 

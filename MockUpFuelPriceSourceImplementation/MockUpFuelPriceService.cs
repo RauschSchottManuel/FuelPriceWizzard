@@ -6,21 +6,14 @@ using Microsoft.Extensions.Logging;
 
 namespace MockUpFuelPriceSourceImplementation
 {
-    public class MockUpFuelPriceService : IFuelPriceSourceService
+    public class MockUpFuelPriceService : BaseFuelPriceSourceService, IFuelPriceSourceService
     {
         private readonly ILogger _logger;
-        private readonly IConfiguration _configuration;
         private readonly HttpClient _httpClient;
-        public MockUpFuelPriceService(IConfiguration config, HttpClient httpClient, ILogger<MockUpFuelPriceService> logger)
+        public MockUpFuelPriceService(IConfiguration config, HttpClient httpClient, ILogger<MockUpFuelPriceService> logger) : base(config)
         {
-            _configuration = config;
             _httpClient = httpClient;
             _logger = logger;
-        }
-
-        public IConfigurationSection GetFetchSettingsSection()
-        {
-            return _configuration.GetSection("FetchSettings");
         }
 
         public Task<IEnumerable<PriceReading>> FetchPricesByLocationAsync(decimal lat, decimal lon, bool includeClosed = true)
