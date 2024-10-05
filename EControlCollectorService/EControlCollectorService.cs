@@ -39,11 +39,20 @@ namespace EControlCollectorService
 
         public async Task<IEnumerable<PriceReading>> FetchPricesByLocationAndFuelTypeAsync(decimal lat, decimal lon, Enums.FuelType fuelType, bool includeClosed = true)
         {
+            this._logger.LogInformation("Starting to fetch prices for location (latitude: {Latitude}, longitude: {Longitude}) and fuel type {FuelType} {IncludeClosed} ...", lat, lon, fuelType, includeClosed ? "including closed locations" : "excluding closed locations");
+
+            var eControlFuelType = ConvertFuelTypeToEControlFuelType(fuelType);
+
+            if (eControlFuelType is null)
+            {
+                this._logger.LogWarning("The specified fuel type ({FuelType}) is not supported by E-Control. Skipping this fetch operation.", fuelType);
+                return [];
+            }
             var queryParams = new Dictionary<string, string>()
             {
                 { "latitude", lat.ToString(CultureInfo.GetCultureInfo("en-us")) },
                 { "longitude", lon.ToString(CultureInfo.GetCultureInfo("en-us")) },
-                { "fuelType", ConvertFuelTypeToEControlFuelType(fuelType) },
+                { "fuelType", eControlFuelType },
                 { "includeClosed", includeClosed.ToString() }
             };
 
@@ -51,9 +60,9 @@ namespace EControlCollectorService
                 "/search/gas-stations/by-address",
                 $"?{string.Join('&', queryParams.Select(p => $"{Uri.EscapeDataString(p.Key)}={Uri.EscapeDataString(p.Value)}"))}");
 
-            this._logger.LogInformation("Retrieving prices from {0} ..", requestUrl);
+            this._logger.LogInformation("Fetching prices from E-Control ...");
             var response = await this._httpClient.GetAsync(requestUrl);
-            this._logger.LogInformation("Finished retrieving prices!");
+            this._logger.LogInformation("Finished fetching prices from E-Control!");
 
             this._logger.LogInformation("Converting prices to price readings ...");
 
@@ -67,7 +76,7 @@ namespace EControlCollectorService
 
                 if(requestedStation == null)
                 {
-                    this._logger.LogError("No gas station found at the specified coordinates! (lat: {0}, lon: {1})", lat, lon);
+                    this._logger.LogError("No gas station found at the specified location! (lat: {Latitude}, lon: {Longitude})", lat, lon);
                     return [];
                 }
 
@@ -82,24 +91,22 @@ namespace EControlCollectorService
                     }
                 });
 
-                this._logger.LogInformation("Finished fetching prices!");
+                this._logger.LogInformation("Completed fetching prices!");
                 return prices.ToList();
             } catch(Exception ex)
             {
-                this._logger.LogError("Something went wrong while parsing the response: {0} {1} {2}", ex.Message, ex.StackTrace, ex.InnerException);
+                this._logger.LogError("Something went wrong while parsing the response: {Message} {StackTrace} {InnerException}", ex.Message, ex.StackTrace, ex.InnerException);
                 return [];
             }
         }
 
-        private static string ConvertFuelTypeToEControlFuelType(Enums.FuelType fuelType)
+        private static string? ConvertFuelTypeToEControlFuelType(Enums.FuelType fuelType)
         {
             return fuelType switch
             {
                 Enums.FuelType.Diesel => "DIE",
-                Enums.FuelType.PremiumDiesel => "DIE",
                 Enums.FuelType.Super => "SUP",
-                Enums.FuelType.SuperPlus => "SUP",
-                _ => "DIE",
+                _ => null,
             };
         }
     }
