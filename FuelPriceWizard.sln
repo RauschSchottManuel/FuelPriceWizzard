@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FuelPriceWizard.DataAccess"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FuelPriceWizard.DataCollector", "FuelPriceWizard.DataCollector\FuelPriceWizard.DataCollector.csproj", "{258C2774-E22D-4A17-B434-D767848E4F58}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MockUpFuelPriceSourceCollectorService", "MockUpFuelPriceSourceImplementation\MockUpFuelPriceSourceCollectorService.csproj", "{2B9BEE3E-A34C-4CC0-A334-7FBCDDD41399}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MockUpFuelPriceSourceCollectorService", "MockUpFuelPriceSourceCollectorService\MockUpFuelPriceSourceCollectorService.csproj", "{2B9BEE3E-A34C-4CC0-A334-7FBCDDD41399}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FuelPriceWizard.Domain", "FuelPriceWizard.Domain\FuelPriceWizard.Domain.csproj", "{FEB21D6A-EADF-48AB-8C85-E2E3043DB550}"
 EndProject

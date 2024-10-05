@@ -34,13 +34,13 @@ To add a new service create a new project and add a new entry in the appsettings
 "ImplementationAssemblies": [
   {
     "Enabled": true,
-    "FilePath": "MockUpFuelPriceSourceImplementation.dll",
-    "Type": "MockUpFuelPriceSourceImplementation.MockUpFuelPriceService"
+    "FilePath": "MockUpFuelPriceSourceCollectorService.dll",
+    "Type": "MockUpFuelPriceSourceCollectorService.MockUpFuelPriceService"
   }
   ...
 ]
 ```
 
 - ***Enabled:*** Defines whether the implementation is enabled or disabled. Defaults to ```true``` when not specified.
-- ***FilePath:*** Defines ***where the .dll file is located***, normally this is the active folder (working directory) and therefore the filename itsself is sufficient but if the file is located somewhere else you would have to specify the relative path here. (``e.g. ..\\..\\..\\..\\MockUpFuelPriceSourceImplementation\\bin\\debug\\net8.0\\MockUpFuelPriceSourceImplementation.dll`` => Specifies the .dll file in the build output directory of the MockUpFuelPriceSourceImplementation project)
+- ***FilePath:*** Defines ***where the .dll file is located***, normally this is the active folder (working directory) and therefore the filename itsself is sufficient but if the file is located somewhere else you would have to specify the relative path here. (``e.g. ..\\..\\..\\..\\MockUpFuelPriceSourceCollectorService\\bin\\debug\\net8.0\\MockUpFuelPriceSourceCollectorService.dll`` => Specifies the .dll file in the build output directory of the MockUpFuelPriceSourceCollectorService project)
 - ***Type:*** Defines the ***full name of the service class*** (including its namespace)
