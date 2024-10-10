@@ -34,7 +34,7 @@ namespace EControlCollectorService
 
         public async Task<IEnumerable<PriceReading>> FetchPricesByLocationAndFuelTypeAsync(decimal lat, decimal lon, Enums.FuelType fuelType, bool includeClosed = true)
         {
-            this._logger.LogInformation("Starting to fetch prices for location (latitude: {Latitude}, longitude: {Longitude}) and fuel type {FuelType} {IncludeClosed} ...", lat, lon, fuelType, includeClosed ? "including closed locations" : "excluding closed locations");
+            this._logger.LogInformation("Starting to collect prices for location (latitude: {Latitude}, longitude: {Longitude}) and fuel type {FuelType} {IncludeClosed} ...", lat, lon, fuelType, includeClosed ? "including closed locations" : "excluding closed locations");
 
             var eControlFuelType = ConvertFuelTypeToEControlFuelType(fuelType);
 
@@ -86,11 +86,11 @@ namespace EControlCollectorService
                     }
                 });
 
-                this._logger.LogInformation("Completed fetching prices!");
+                this._logger.LogInformation("Completed collecting prices!");
                 return prices.ToList();
             } catch(Exception ex)
             {
-                this._logger.LogError("Something went wrong while parsing the response: {Message} {StackTrace} {InnerException}", ex.Message, ex.StackTrace, ex.InnerException);
+                this._logger.LogError(ex, "Something went wrong while parsing the response!");
                 return [];
             }
         }

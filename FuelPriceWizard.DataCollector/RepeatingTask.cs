@@ -25,6 +25,7 @@ namespace FuelPriceWizard.DataCollector
 
             try
             {
+                logger.Information("Starting collector service ...");
                 if(_startNextFullHour)
                 {
                     await WaitForNextFullHourAsync();
@@ -44,6 +45,9 @@ namespace FuelPriceWizard.DataCollector
                 logger.Warning("Attempt to stop a task that is not running.");
                 return;
             }
+
+            logger.Information("Stopping collector service ...");
+
 
             _isRunning = false;
 

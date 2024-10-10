@@ -54,7 +54,7 @@ namespace FuelPriceWizard.DataCollector
 
                 contextLogger.Information("Creating task for instance {ServiceName}", serviceClassName);
 
-                var repeatingTask = new RepeatingTask<IFuelPriceSourceFacade>(contextLogger, interval, service,
+                var repeatingTask = new RepeatingTask<IFuelPriceSourceFacade>(logger.ForContext(serviceClassName), interval, service,
                     fetchSettings.ExcludedWeekdays, fetchSettings.StartNextFullHour, CancellationToken.None);
 
                 collectorTasks.Add(repeatingTask);
@@ -64,7 +64,6 @@ namespace FuelPriceWizard.DataCollector
 
             foreach(var collectorTask in collectorTasks)
             {
-                contextLogger.Information("Starting collector task {CollectorName}", collectorTask.GetGenericType());
                 collectorTask.Start(async (service) =>
                 {
                     var prices = await service.FetchPricesByLocationAsync(48.287689M, 14.107360M);
