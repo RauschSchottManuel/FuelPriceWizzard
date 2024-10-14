@@ -1,4 +1,5 @@
-﻿using FuelPriceWizard.DataCollector.ConfigDefinitions;
+﻿using FuelPriceWizard.BusinessLogic;
+using FuelPriceWizard.DataCollector.ConfigDefinitions;
 using Microsoft.Extensions.Configuration;
 using Serilog;
 
@@ -21,61 +22,75 @@ namespace FuelPriceWizard.DataCollector
             contextLogger.Information("DataCollector started!");
 
             var services = FuelPriceSourceServiceFactory.GetFuelPriceSourceServices(config, logger);
-            var collectorTasks = new List<IRepeatingTask<IFuelPriceSourceFacade>>();
+            var collectorTasks = new List<IRepeatingTask<IFuelPriceSourceService>>();
 
             foreach (var service in services)
             {
-                var serviceClassName = service.GetType().GetGenericArguments()[0];
+                var task = ConstructRepeatingTask(logger, service);
 
-                var fetchSettings = service.GetFetchSettingsSection().Get<FetchSettings>();
-
-                if(fetchSettings is null)
-                {
-                    contextLogger.Error("No FetchSettings specified in appsettings.{ServiceName}.json or GetFetchSettingsSection() not implemented!"
-                        + " Skipping creation of task for instance {ServiceName}",
-                        serviceClassName);
+                if (task is null)
                     continue;
-                }
 
-                var interval = fetchSettings!.IntervalUnit switch
-                {
-                    FetchSettings.TimeUnit.Second => new TimeSpan(0, 0, fetchSettings.IntervalValue),
-                    FetchSettings.TimeUnit.Minute => new TimeSpan(0, fetchSettings.IntervalValue, 0),
-                    FetchSettings.TimeUnit.Hour => new TimeSpan(fetchSettings.IntervalValue, 0, 0),
-                    _ => TimeSpan.Zero,
-                };
+                collectorTasks.Add(task);
 
-                if(interval == TimeSpan.Zero)
-                {
-                    contextLogger.Error("Invalid fetch interval specified! Skipping creation of task for instance {ServiceName}", serviceClassName);
-                    continue;
-                }
-
-
-                contextLogger.Information("Creating task for instance {ServiceName}", serviceClassName);
-
-                var repeatingTask = new RepeatingTask<IFuelPriceSourceFacade>(logger.ForContext(serviceClassName), interval, service,
-                    fetchSettings.ExcludedWeekdays, fetchSettings.StartNextFullHour, CancellationToken.None);
-
-                collectorTasks.Add(repeatingTask);
-
-                contextLogger.Information("Finished creating task for instance {ServiceName}", serviceClassName);
+                contextLogger.Information("Finished creating task for instance {ServiceName}", service.GetType().GetGenericArguments()[0]);
             }
 
-            foreach(var collectorTask in collectorTasks)
+            foreach (var collectorTask in collectorTasks)
             {
-                collectorTask.Start(async (service) =>
-                {
-                    var prices = await service.FetchPricesByLocationAsync(48.287689M, 14.107360M);
-
-                    foreach (var price in prices)
-                    {
-                        contextLogger.Debug("Price {0} {1}", price.FuelType.DisplayValue, price.Value);
-                    }
-                });
+                collectorTask.Start(CollectMethod(logger));
             }
 
             Console.ReadKey();
         }
+
+        private static RepeatingTask<IFuelPriceSourceService>? ConstructRepeatingTask(Serilog.Core.Logger logger, IFuelPriceSourceService service)
+        {
+            var contextLogger = logger.ForContext<Program>();
+
+            var serviceClassName = service.GetType().GetGenericArguments()[0];
+
+            var fetchSettings = service.GetFetchSettingsSection().Get<FetchSettings>();
+
+            if (fetchSettings is null)
+            {
+                contextLogger.Error("No FetchSettings specified in appsettings.{ServiceName}.json or GetFetchSettingsSection() not implemented!"
+                    + " Skipping creation of task for instance {ServiceName}",
+                    serviceClassName);
+                return null;
+            }
+
+            var interval = fetchSettings!.IntervalUnit switch
+            {
+                FetchSettings.TimeUnit.Second => new TimeSpan(0, 0, fetchSettings.IntervalValue),
+                FetchSettings.TimeUnit.Minute => new TimeSpan(0, fetchSettings.IntervalValue, 0),
+                FetchSettings.TimeUnit.Hour => new TimeSpan(fetchSettings.IntervalValue, 0, 0),
+                _ => TimeSpan.Zero,
+            };
+
+            if (interval == TimeSpan.Zero)
+            {
+                contextLogger.Error("Invalid fetch interval specified! Skipping creation of task for instance {ServiceName}", serviceClassName);
+                return null;
+            }
+
+
+            contextLogger.Information("Creating task for instance {ServiceName}", serviceClassName);
+
+            return new RepeatingTask<IFuelPriceSourceService>(logger.ForContext(serviceClassName), interval, service,
+                fetchSettings.ExcludedWeekdays, fetchSettings.StartNextFullHour, CancellationToken.None);
+        }
+
+        private static Func<IFuelPriceSourceService, Task> CollectMethod(Serilog.Core.Logger logger) =>
+            async (service) =>
+            {
+                var prices = await service.FetchPricesByLocationAsync(48.287689M, 14.107360M);
+
+                foreach (var price in prices)
+                {
+                    logger.Debug("Price {0} {1}", price.FuelType.DisplayValue, price.Value);
+                }
+            };
     }
+
 }
