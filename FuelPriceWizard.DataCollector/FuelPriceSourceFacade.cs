@@ -36,7 +36,7 @@ namespace FuelPriceWizard.DataCollector
             var serviceCollection = new ServiceCollection();
             serviceCollection.AddSingleton<IConfiguration>(assemblyConfig)
                 .AddLogging(builder => builder.AddSerilog(logger: logger, dispose: true))
-                .AddFuelPriceWizardDataAccess(assemblyConfig.GetConnectionString("Default")!)
+                .AddFuelPriceWizardDataAccess(assemblyConfig.GetConnectionString("FuelPriceWizard_Dev")!)
                 .AddHttpClient()
                 .AddScoped<IFuelPriceSourceService, T>();
 

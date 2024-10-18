@@ -3,6 +3,7 @@ using Enums = FuelPriceWizard.BusinessLogic.Modules.Enums;
 using FuelPriceWizard.Domain.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using FuelPriceWizard.DataAccess;
 
 namespace MockUpFuelPriceSourceImplementation
 {
@@ -10,7 +11,14 @@ namespace MockUpFuelPriceSourceImplementation
     {
         private readonly ILogger _logger;
         private readonly HttpClient _httpClient;
-        public MockUpFuelPriceService(IConfiguration config, HttpClient httpClient, ILogger<MockUpFuelPriceService> logger) : base(config)
+
+        public override Dictionary<string, Enums.FuelType> FuelTypeMapping { get; protected set; } = new();
+
+        public MockUpFuelPriceService(IConfiguration config, 
+            HttpClient httpClient, 
+            ILogger<MockUpFuelPriceService> logger, 
+            IFuelTypeRepository fuelTypeRepository) 
+            : base(config, fuelTypeRepository)
         {
             _httpClient = httpClient;
             _logger = logger;

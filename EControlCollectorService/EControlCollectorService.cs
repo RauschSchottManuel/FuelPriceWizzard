@@ -1,12 +1,12 @@
-﻿using FuelPriceWizard.BusinessLogic;
-using Enums = FuelPriceWizard.BusinessLogic.Modules.Enums;
+﻿using EControlCollectorService.Model;
+using FuelPriceWizard.BusinessLogic;
+using FuelPriceWizard.DataAccess;
 using FuelPriceWizard.Domain.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using System.Text.Json;
-using EControlCollectorService.Model;
 using System.Globalization;
-using FuelType = FuelPriceWizard.Domain.Models.FuelType;
+using System.Text.Json;
+using Enums = FuelPriceWizard.BusinessLogic.Modules.Enums;
 
 namespace EControlCollectorService
 {
@@ -14,7 +14,18 @@ namespace EControlCollectorService
     {
         private readonly ILogger<EControlCollectorService> _logger;
         private readonly HttpClient _httpClient;
-        public EControlCollectorService(IConfiguration config, HttpClient httpClient, ILogger<EControlCollectorService> logger) : base(config)
+
+        public override Dictionary<string, Enums.FuelType> FuelTypeMapping { get; protected set; } = new()
+        {
+            { "DIE", Enums.FuelType.Diesel },
+            { "SUP", Enums.FuelType.Super },
+        };
+
+        public EControlCollectorService(IConfiguration config,
+            HttpClient httpClient,
+            ILogger<EControlCollectorService> logger,
+            IFuelTypeRepository fuelTypeRepository)
+            : base(config, fuelTypeRepository)
         {
             _httpClient = httpClient;
             _logger = logger;
@@ -24,9 +35,9 @@ namespace EControlCollectorService
         {
             var prices = new List<PriceReading>();
 
-            foreach(var fuelType in Enum.GetValues(typeof(Enums.FuelType)))
+            foreach (var fuelType in Enum.GetValues(typeof(Enums.FuelType)))
             {
-                prices.AddRange(await this.FetchPricesByLocationAndFuelTypeAsync(lat, lon, (Enums.FuelType) fuelType, includeClosed));
+                prices.AddRange(await this.FetchPricesByLocationAndFuelTypeAsync(lat, lon, (Enums.FuelType)fuelType, includeClosed));
             }
 
             return prices;
@@ -36,7 +47,7 @@ namespace EControlCollectorService
         {
             this._logger.LogInformation("Starting to collect prices for location (latitude: {Latitude}, longitude: {Longitude}) and fuel type {FuelType} {IncludeClosed} ...", lat, lon, fuelType, includeClosed ? "including closed locations" : "excluding closed locations");
 
-            var eControlFuelType = ConvertFuelTypeToEControlFuelType(fuelType);
+            var eControlFuelType = MapFromFuelType(fuelType);
 
             if (eControlFuelType is null)
             {
@@ -69,40 +80,26 @@ namespace EControlCollectorService
 
                 var requestedStation = gasStations?.FirstOrDefault();
 
-                if(requestedStation == null)
+                if (requestedStation == null)
                 {
                     this._logger.LogError("No gas station found at the specified location! (lat: {Latitude}, lon: {Longitude})", lat, lon);
                     return [];
                 }
 
-                var prices = requestedStation.Prices.Select(p => new PriceReading
+                var prices = requestedStation.Prices.Select(async p => new PriceReading
                 {
                     Value = p.Amount,
-                    FuelType = p.FuelType switch
-                    {
-                        "DIE" => new FuelType { DisplayValue = "Diesel" },
-                        "SUP" => new FuelType { DisplayValue = "Super" },
-                        _ => new FuelType { Abbreviation = p.FuelType },
-                    }
+                    FuelType = await MapToFuelTypeAsync(p.FuelType),
                 });
 
                 this._logger.LogInformation("Completed collecting prices!");
-                return prices.ToList();
-            } catch(Exception ex)
+                return await Task.WhenAll(prices.ToList());
+            }
+            catch (Exception ex)
             {
                 this._logger.LogError(ex, "Something went wrong while parsing the response!");
                 return [];
             }
-        }
-
-        private static string? ConvertFuelTypeToEControlFuelType(Enums.FuelType fuelType)
-        {
-            return fuelType switch
-            {
-                Enums.FuelType.Diesel => "DIE",
-                Enums.FuelType.Super => "SUP",
-                _ => null,
-            };
         }
     }
 }

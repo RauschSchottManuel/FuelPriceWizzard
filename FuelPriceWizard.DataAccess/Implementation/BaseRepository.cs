@@ -6,10 +6,10 @@ namespace FuelPriceWizard.DataAccess.Implementation
     public class BaseRepository<TDataModel, TDomainModel> : IRepository<TDomainModel> where TDataModel : class
     {
         public FuelPriceWizardDbContext Context { get; set; }
-        public Mapper Mapper { get; set; }
+        public IMapper Mapper { get; set; }
 
 
-        public BaseRepository(FuelPriceWizardDbContext context, Mapper mapper)
+        public BaseRepository(FuelPriceWizardDbContext context, IMapper mapper)
         {
             Context = context;
             Mapper = mapper;

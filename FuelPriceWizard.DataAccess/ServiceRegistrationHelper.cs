@@ -24,7 +24,9 @@ namespace FuelPriceWizard.DataAccess
                 typeof(PriceReadingMappingProfile)
             );
 
-            //services.AddScoped<IPriceRepository, PriceRepository>();
+            services.AddScoped<IPriceRepository, PriceRepository>();
+            services.AddScoped<IStationRepository, StationRepository>();
+            services.AddScoped<IFuelTypeRepository, FuelTypeRepository>();
 
             return services;
         }

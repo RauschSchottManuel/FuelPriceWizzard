@@ -6,7 +6,7 @@ namespace FuelPriceWizard.DataAccess.Implementation
 {
     public class PriceRepository : BaseRepository<PriceReading, PriceModel>, IPriceRepository
     {
-        public PriceRepository(FuelPriceWizardDbContext context, Mapper mapper) : base(context, mapper)
+        public PriceRepository(FuelPriceWizardDbContext context, IMapper mapper) : base(context, mapper)
         {
         }
     }
