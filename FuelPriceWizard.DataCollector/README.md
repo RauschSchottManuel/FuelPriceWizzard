@@ -1,13 +1,14 @@
 # FuelPriceWizard - DataCollector
 This sub-project serves as the base project for data collection services. The actual services can be added via an appsettings.json entry and placement of the .dll file in the project folder.
 
-## Create a new data collection service
-You can create a class library with a service class, specific appsettings and utilize DI (DependencyInjection)
+## Create a new data collector service
+You create a class library with an entry class, define specific appsettings and utilize DI (DependencyInjection).
+For a complete demo configuration see the [Demo collector service configuration](#demo-collector-service-configuration) section further down.
 
-### 1. Create a new ClassLibrary in this solution naming it ``<YourServiceName>CollectorService``
+### 1. Create a new ClassLibrary in this solution under the ``CollectorServices`` folder naming it ``<YourServiceName>CollectorService``
 ### 2. Add an ``appsettings.json`` file naming it ``appsettings.<ServiceClassName>.json``
 In the appsettings file you have to define fetch settings as well as any service specific settings.
-The FetchSettings section is defined as follows:
+The **FetchSettings section is mandatory** and defined as follows:
 
 ```json
 "FetchSettings": {
@@ -27,8 +28,8 @@ The FetchSettings section is defined as follows:
 
 ### 3. Create the entry-point class extending the [BaseFuelPriceSourceService](../FuelPriceWizard.BusinessLogic/BaseFuelPriceSourceService.cs) class and implementing the [IFuelPriceSourceService](../FuelPriceWizard.BusinessLogic/IFuelPriceSourceService.cs) interface included in the ``FuelPriceWizard.BusinessLogic`` project
 
-## Adding a new service
-To add a new service create a new project and add a new entry in the appsettings.json file under the **ImplementationAssemblies** section:
+### 4. Adding the new service
+To add the new service add a new entry in the appsettings.json file under the **ImplementationAssemblies** section:
 
 ```json
 "ImplementationAssemblies": [
@@ -44,3 +45,12 @@ To add a new service create a new project and add a new entry in the appsettings
 - ***Enabled:*** Defines whether the implementation is enabled or disabled. Defaults to ```true``` when not specified.
 - ***FilePath:*** Defines ***where the .dll file is located***, normally this is the active folder (working directory) and therefore the filename itsself is sufficient but if the file is located somewhere else you would have to specify the relative path here. (``e.g. ..\\..\\..\\..\\MockUpFuelPriceSourceCollectorService\\bin\\debug\\net8.0\\MockUpFuelPriceSourceCollectorService.dll`` => Specifies the .dll file in the build output directory of the MockUpFuelPriceSourceCollectorService project)
 - ***Type:*** Defines the ***full name of the service class*** (including its namespace)
+
+## Demo collector service configuration (TODO)
+This section shows a full demo configuration of a new collector service (**DemoCollectorService**)
+
+1. Create the project "DemoCollectorService"
+2. Create the entry-point class and extend/implement the [BaseFuelPriceSourceService](../FuelPriceWizard.BusinessLogic/BaseFuelPriceSourceService.cs)  and [IFuelPriceSourceService](../FuelPriceWizard.BusinessLogic/IFuelPriceSourceService.cs)
+3. Add the collector-specific appsettings.DemoCollectorService.json file including the FetchSettings section 
+4. Add the appsetings.json assembly entry
+
