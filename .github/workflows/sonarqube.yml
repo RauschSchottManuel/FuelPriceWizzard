@@ -29,16 +29,16 @@ jobs:
         node-version: ${{ env.NODE_VERSION }}
 
     - name: Install dependencies (Angular)
-      working-directory: ./FuelPriceWizard.UI
+      working-directory: ./FuelPriceWizard.UI/fuelpricewizard
       run: npm install
 
       # Build and test Angular project
     - name: Build Angular project
-      working-directory: ./FuelPriceWizard.UI
+      working-directory: ./FuelPriceWizard.UI/fuelpricewizard
       run: npm run build
 
     - name: Run Angular tests
-      working-directory: ./FuelPriceWizard.UI
+      working-directory: ./FuelPriceWizard.UI/fuelpricewizard
       run: npm run test -- --watch=false --code-coverage
 
     # Build and test .NET projects
