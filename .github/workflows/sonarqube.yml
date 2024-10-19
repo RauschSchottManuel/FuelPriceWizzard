@@ -1,30 +1,81 @@
-name: Sonarqube Scan
+name: SonarQube Scan
 
 on:
   push:
     branches:
       - main
 
+env:
+  DOTNET_VERSION: '8.0.x'
+  NODE_VERSION: '22.8.x'
 
 jobs:
-  general:
-    name: General build and analyze
+  sonarQube:
+    name: SonarQube Scan
     runs-on: ubuntu-latest
-    
+
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-      - uses: sonarsource/sonarqube-scan-action@master
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-      # If you wish to fail your job when the Quality Gate is red, uncomment the
-      # following lines. This would typically be used to fail a deployment.
-      # - uses: sonarsource/sonarqube-quality-gate-action@master
-      #   timeout-minutes: 5
-      #   env:
-      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+
+    - name: Install dependencies (Angular)
+      working-directory: ./FuelPriceWizard.UI
+      run: npm install
+
+      # Build and test Angular project
+    - name: Build Angular project
+      working-directory: ./FuelPriceWizard.UI
+      run: npm run build
+
+    - name: Run Angular tests
+      working-directory: ./FuelPriceWizard.UI
+      run: npm run test -- --watch=false --code-coverage
+
+    # Build and test .NET projects
+    - name: Build .NET projects
+      working-directory: ./
+      run: dotnet build FuelPriceWizard.sln --configuration Release
+
+    - name: Run tests for .NET projects and collect code coverage
+      working-directory: ./
+      run: dotnet test FuelPriceWizard.sln --configuration Release --collect:"XPlat Code Coverage"
+
+    - name: SonarQube Scan
+      run: |
+        dotnet-sonarscanner begin /k:"FuelPriceWizzard" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" \
+          /d:sonar.host.url="${{ secrets.SONAR_HOST_URL }}" \
+          /d:sonar.cs.opencover.reportsPaths="EControlCollectorService/coverage.opencover.xml,FuelPriceWizard.API/coverage.opencover.xml,FuelPriceWizard.BusinessLogic/coverage.opencover.xml,FuelPriceWizard.DataAccess/coverage.opencover.xml,FuelPriceWizard.Domain/coverage.opencover.xml,FuelPriceWizard.DataCollector/coverage.opencover.xml,MockUpFuelPriceSourceCollectorService/coverage.opencover.xml" \
+          /d:sonar.typescript.lcov.reportPaths=FuelPriceWizard.UI/coverage/lcov.info
+        dotnet build FuelPriceWizard.sln
+        dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+  # general:
+  #   name: General build and analyze
+  #   runs-on: ubuntu-latest
+    
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #       with:
+  #         fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+  #     - uses: sonarsource/sonarqube-scan-action@master
+  #       env:
+  #         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  #         SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+  #     If you wish to fail your job when the Quality Gate is red, uncomment the
+  #     following lines. This would typically be used to fail a deployment.
+  #     - uses: sonarsource/sonarqube-quality-gate-action@master
+  #       timeout-minutes: 5
+  #       env:
+  #         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 #  dotnet:
 #    name: .NET Build and analyze
 #    runs-on: windows-latest
