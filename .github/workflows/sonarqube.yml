@@ -23,6 +23,14 @@ jobs:
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
 
+    # Install SonarScanner for .NET
+    - name: Install dotnet-sonarscanner
+      run: dotnet tool install --global dotnet-sonarscanner
+
+    # Add .NET tools to PATH
+    - name: Set up PATH for dotnet tools
+      run: echo "/home/runner/.dotnet/tools" >> $GITHUB_PATH
+
     - name: Set up Node.js
       uses: actions/setup-node@v4
       with:
