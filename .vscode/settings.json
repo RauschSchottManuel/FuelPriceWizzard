@@ -1,0 +1,6 @@
+{
+    "sonarlint.connectedMode.project": {
+        "connectionId": "https-sonarqube-mrausch-schott-com",
+        "projectKey": "RauschSchottManuel_FuelPriceWizzard_ee84ae87-553d-4321-b870-ec9b8be6b491"
+    }
+}
