@@ -15,17 +15,20 @@ namespace EControlCollectorService
         private readonly ILogger<EControlCollectorService> _logger;
         private readonly HttpClient _httpClient;
 
-        public override Dictionary<string, Enums.FuelType> FuelTypeMapping { get; protected set; } = new()
+        public override Dictionary<string, Enums.FuelType> FuelTypeMapping=> new()
         {
             { "DIE", Enums.FuelType.Diesel },
             { "SUP", Enums.FuelType.Super },
         };
 
+        public override Enums.Currency Currency => Enums.Currency.EUR;
+
         public EControlCollectorService(IConfiguration config,
             HttpClient httpClient,
             ILogger<EControlCollectorService> logger,
-            IFuelTypeRepository fuelTypeRepository)
-            : base(config, fuelTypeRepository)
+            IFuelTypeRepository fuelTypeRepository,
+            ICurrencyRepository currencyRepository)
+            : base(config, fuelTypeRepository, currencyRepository)
         {
             _httpClient = httpClient;
             _logger = logger;
@@ -90,6 +93,7 @@ namespace EControlCollectorService
                 {
                     Value = p.Amount,
                     FuelType = await MapToFuelTypeAsync(p.FuelType),
+                    Currency = await GetCurrencyObjectAsync(),
                 });
 
                 this._logger.LogInformation("Completed collecting prices!");

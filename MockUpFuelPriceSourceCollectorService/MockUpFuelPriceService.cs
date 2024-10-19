@@ -12,13 +12,15 @@ namespace MockUpFuelPriceSourceImplementation
         private readonly ILogger _logger;
         private readonly HttpClient _httpClient;
 
-        public override Dictionary<string, Enums.FuelType> FuelTypeMapping { get; protected set; } = new();
+        public override Dictionary<string, Enums.FuelType> FuelTypeMapping => new();
+        public override Enums.Currency Currency => Enums.Currency.EUR;
 
         public MockUpFuelPriceService(IConfiguration config, 
             HttpClient httpClient, 
             ILogger<MockUpFuelPriceService> logger, 
-            IFuelTypeRepository fuelTypeRepository) 
-            : base(config, fuelTypeRepository)
+            IFuelTypeRepository fuelTypeRepository,
+            ICurrencyRepository currencyRepository) 
+            : base(config, fuelTypeRepository, currencyRepository)
         {
             _httpClient = httpClient;
             _logger = logger;

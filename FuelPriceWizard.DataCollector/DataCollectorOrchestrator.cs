@@ -1,17 +1,21 @@
 ﻿using FuelPriceWizard.BusinessLogic;
+using FuelPriceWizard.DataAccess;
 using FuelPriceWizard.DataCollector.ConfigDefinitions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace FuelPriceWizard.DataCollector
 {
-    public class DataCollectorOrchestrator(ILogger<DataCollectorOrchestrator> orchestratorLogger, IConfiguration configuration, ILoggerFactory loggerFactory) : IDataCollectorOrchestrator
+    public class DataCollectorOrchestrator(ILogger<DataCollectorOrchestrator> orchestratorLogger,
+        IConfiguration configuration,
+        ILoggerFactory loggerFactory,
+        IFuelTypeRepository fuelTypeRepository) : IDataCollectorOrchestrator
     {
         public ILogger<DataCollectorOrchestrator> OrchestratorLogger { get; } = orchestratorLogger;
         public IConfiguration Configuration { get; } = configuration;
         public ILoggerFactory LoggerFactory { get; } = loggerFactory;
-
-        public IEnumerable<RepeatingTask<IFuelPriceSourceService>> Tasks { get; set; }
+        public IFuelTypeRepository FuelTypeRepository { get; } = fuelTypeRepository;
+        public IEnumerable<RepeatingTask<IFuelPriceSourceService>> Tasks { get; set; } = [];
 
         public IEnumerable<RepeatingTask<IFuelPriceSourceService>> CreateTasks()
         {
@@ -79,18 +83,18 @@ namespace FuelPriceWizard.DataCollector
         {
             foreach (var task in tasks)
             {
-                _ = task.Start(CollectMethod());
+                _ = task.Start(this.CollectMethod());
             }
         }
 
-        private static Func<ILogger, IFuelPriceSourceService, Task> CollectMethod() =>
+        private Func<ILogger, IFuelPriceSourceService, Task> CollectMethod() =>
             async (logger, service) =>
             {
                 var prices = await service.FetchPricesByLocationAsync(48.287689M, 14.107360M);
 
                 foreach (var price in prices)
                 {
-                    logger.LogDebug("Price {0} {1}", price.FuelType.DisplayValue, price.Value);
+                    logger.LogDebug("Price {FuelTypeDisplayValue} {FuelPrice}{Currency}", price.FuelType.DisplayValue, price.Value, price.Currency.Symbol);
                 }
             };
     }

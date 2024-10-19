@@ -9,7 +9,7 @@ namespace FuelPriceWizard.BusinessLogic
     /// <c>BaseFuelPriceSourceService</c> defines a base class which a collector service entry point class has to extend.
     /// This base class contains some common methods that are required for the collector service to work properly.
     /// </summary>
-    public abstract class BaseFuelPriceSourceService(IConfiguration configuration, IFuelTypeRepository fuelTypeRepository)
+    public abstract class BaseFuelPriceSourceService(IConfiguration configuration, IFuelTypeRepository fuelTypeRepository, ICurrencyRepository currencyRepository)
     {
         /// <summary>
         /// Stores the configuration of the appsettings.json and the custom appsettings.<CustomCollectorServiceClassName>.json
@@ -23,17 +23,27 @@ namespace FuelPriceWizard.BusinessLogic
         public IFuelTypeRepository FuelTypeRepository { get; } = fuelTypeRepository;
 
         /// <summary>
-        /// The method <c>GetFetchSettingsSection</c> returns the specific <c>FetchSettings</c> configuration section 
+        /// Stores a CurrencyRepository provided by Dependency Injection
         /// </summary>
-        /// <returns>An object of type <see cref="IConfigurationSection"/></returns>
-        public IConfigurationSection GetFetchSettingsSection() =>
-            this.Configuration.GetSection("FetchSettings");
+        public ICurrencyRepository CurrencyRepository { get; } = currencyRepository;
 
         /// <summary>
         /// Defines the mapping between <see cref="BusinessLogic.Modules.Enums.FuelType"/> and implementation specific FuelType 
         /// string.
         /// </summary>
-        public abstract Dictionary<string, Enums.FuelType> FuelTypeMapping { get; protected set; }
+        public abstract Dictionary<string, Enums.FuelType> FuelTypeMapping { get; }
+
+        /// <summary>
+        /// Defines the default currency for the price value.
+        /// </summary>
+        public abstract Enums.Currency Currency { get; }
+
+        /// <summary>
+        /// The method <c>GetFetchSettingsSection</c> returns the specific <c>FetchSettings</c> configuration section 
+        /// </summary>
+        /// <returns>An object of type <see cref="IConfigurationSection"/></returns>
+        public IConfigurationSection GetFetchSettingsSection() =>
+            this.Configuration.GetSection("FetchSettings");       
 
         protected async Task<FuelType> MapToFuelTypeAsync(string? value)
         {
@@ -52,5 +62,8 @@ namespace FuelPriceWizard.BusinessLogic
         {
             return FuelTypeMapping.FirstOrDefault(e => e.Value == fuelType).Key;
         }
+
+        protected async Task<Currency> GetCurrencyObjectAsync() =>
+            await this.CurrencyRepository.GetByAbbreviationAsync(this.Currency.ToString());
     }
 }
