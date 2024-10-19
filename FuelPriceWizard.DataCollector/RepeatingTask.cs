@@ -1,9 +1,9 @@
-﻿using Serilog;
+﻿using Microsoft.Extensions.Logging;
 
 namespace FuelPriceWizard.DataCollector
 {
     public class RepeatingTask<T>(ILogger logger, TimeSpan interval, T service,
-        List<DayOfWeek> excludedWeekdays, bool startNextFullHour = false, CancellationToken cancellationToken = default) : IRepeatingTask<T>, IDisposable
+        List<DayOfWeek> excludedWeekdays, bool startNextFullHour = false, CancellationToken cancellationToken = default) : IDisposable
     {
         private readonly T _service = service;
         private readonly List<DayOfWeek> _excludedWeekdays = excludedWeekdays;
@@ -17,7 +17,7 @@ namespace FuelPriceWizard.DataCollector
         {
             if (_isRunning)
             {
-                logger.Warning("Attempt to start a task that is already running.");
+                logger.LogWarning("Attempt to start a task that is already running.");
                 return;
             }
 
@@ -25,7 +25,7 @@ namespace FuelPriceWizard.DataCollector
 
             try
             {
-                logger.Information("Starting collector service ...");
+                logger.LogInformation("Starting collector service ...");
                 if(_startNextFullHour)
                 {
                     await WaitForNextFullHourAsync();
@@ -34,7 +34,7 @@ namespace FuelPriceWizard.DataCollector
             }
             catch (Exception ex)
             {
-                logger.Error(ex, "Something went wrong while starting the task for {TaskName}!", nameof(T));
+                logger.LogError(ex, "Something went wrong while starting the task for {TaskName}!", nameof(T));
             }
         }
 
@@ -42,17 +42,17 @@ namespace FuelPriceWizard.DataCollector
         {
             if (!_isRunning)
             {
-                logger.Warning("Attempt to stop a task that is not running.");
+                logger.LogWarning("Attempt to stop a task that is not running.");
                 return;
             }
 
-            logger.Information("Stopping collector service ...");
+            logger.LogInformation("Stopping collector service ...");
 
 
             _isRunning = false;
 
             _timer.Dispose(); // Stop the timer
-            logger.Information("The timer for {TaskType} is disposed.", nameof(T));
+            logger.LogInformation("The timer for {TaskType} is disposed.", nameof(T));
 
             if (_periodicTask is not null)
             {
@@ -62,11 +62,11 @@ namespace FuelPriceWizard.DataCollector
                 }
                 catch (OperationCanceledException ex)
                 {
-                    logger.Warning(ex, "The periodic task for {TaskType} was cancelled.", nameof(T));
+                    logger.LogWarning(ex, "The periodic task for {TaskType} was cancelled.", nameof(T));
                 }
             }
 
-            logger.Information("The periodic task for {TaskType} has been stopped.", nameof(T));
+            logger.LogInformation("The periodic task for {TaskType} has been stopped.", nameof(T));
         }
 
         public string GetGenericType() =>
@@ -86,18 +86,18 @@ namespace FuelPriceWizard.DataCollector
                     }
                     catch (Exception ex)
                     {
-                        logger.Error(ex, "Error executing function for {TaskName}.", nameof(T));
+                        logger.LogError(ex, "Error executing function for {TaskName}.", nameof(T));
                     }
 
                 } while (await _timer.WaitForNextTickAsync(cancellationToken));
             }
             catch (OperationCanceledException ex)
             {
-                logger.Warning(ex, "The task was canceled.");
+                logger.LogWarning(ex, "The task was canceled.");
             }
             catch (Exception ex)
             {
-                logger.Error(ex, "Unexpected error in periodic execution for {TaskName}.", nameof(T));
+                logger.LogError(ex, "Unexpected error in periodic execution for {TaskName}.", nameof(T));
             }
         }
 
@@ -109,7 +109,7 @@ namespace FuelPriceWizard.DataCollector
             DateTime nextFullHour = new DateTime(now.Year, now.Month, now.Day, now.Hour, 0, 0, DateTimeKind.Utc).AddHours(1);
 
             // Log the next full hour
-            logger.Information("Task is configured to start at the next full hour (UTC). First execution on {NextFullHour:dd.MM.yyyy HH:mm}!", nextFullHour);
+            logger.LogInformation("Task is configured to start at the next full hour (UTC). First execution on {NextFullHour:dd.MM.yyyy HH:mm}!", nextFullHour);
 
             // Calculate the delay duration
             TimeSpan delay = nextFullHour - DateTime.UtcNow;
@@ -121,7 +121,7 @@ namespace FuelPriceWizard.DataCollector
                 }
                 catch (TaskCanceledException ex)
                 {
-                    logger.Warning(ex, "The delay until the next full hour was canceled.");
+                    logger.LogWarning(ex, "The delay until the next full hour was canceled.");
                     throw;
                 }
             }
@@ -135,7 +135,7 @@ namespace FuelPriceWizard.DataCollector
                 var nextExecutionDate = DateTime.UtcNow.Date.AddDays(1);
                 var delayDuration = nextExecutionDate - DateTime.UtcNow;
 
-                logger.Information("Fetch settings are configured to not run on the following days: {ExcludedDays}. "
+                logger.LogInformation("Fetch settings are configured to not run on the following days: {ExcludedDays}. "
                     + "Next execution attempt will be on {NextTryDate:dd.MM.yyyy HH:mm}",
                     _excludedWeekdays, nextExecutionDate);
 
@@ -146,7 +146,7 @@ namespace FuelPriceWizard.DataCollector
                 }
                 catch (TaskCanceledException ex)
                 {
-                    logger.Information(ex, "Task was canceled before the next scheduled execution.");
+                    logger.LogInformation(ex, "Task was canceled before the next scheduled execution.");
                     throw;
                 }
             }
@@ -172,7 +172,7 @@ namespace FuelPriceWizard.DataCollector
             {
                 // Free managed resources here (e.g., managed disposable objects)
                 _timer?.Dispose();
-                logger.Information("Timer disposed for {TaskType}.", nameof(T));
+                logger.LogInformation("Timer disposed for {TaskType}.", nameof(T));
             }
 
             _disposed = true;
