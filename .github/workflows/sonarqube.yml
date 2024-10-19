@@ -8,6 +8,8 @@ on:
 env:
   DOTNET_VERSION: '8.0.x'
   NODE_VERSION: '22.8.x'
+  JAVA_DISTRIBUTION: 'temurin'
+  JAVA_VERSION: '17'
 
 jobs:
   sonarQube:
@@ -36,6 +38,12 @@ jobs:
       with:
         node-version: ${{ env.NODE_VERSION }}
 
+    - name: Set up Java for SonarQube
+      uses: actions/setup-java@v4
+      with:
+        distribution: ${{ env.JAVA_DISTRIBUTION }}
+        java-version: ${{ env.JAVA_VERSION }}
+
     - name: Install dependencies (Angular)
       working-directory: ./FuelPriceWizard.UI/fuelpricewizard
       run: npm install
@@ -63,6 +71,7 @@ jobs:
         dotnet-sonarscanner begin /k:"FuelPriceWizzard" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" \
           /d:sonar.host.url="${{ secrets.SONAR_HOST_URL }}" \
           /d:sonar.projectBaseDir="$(pwd)" \
+          /d:sonar.scanner.skipJreProvisioning=true \
           /d:sonar.cs.opencover.reportsPaths="EControlCollectorService/coverage.opencover.xml,FuelPriceWizard.API/coverage.opencover.xml,FuelPriceWizard.BusinessLogic/coverage.opencover.xml,FuelPriceWizard.DataAccess/coverage.opencover.xml,FuelPriceWizard.Domain/coverage.opencover.xml,FuelPriceWizard.DataCollector/coverage.opencover.xml,MockUpFuelPriceSourceCollectorService/coverage.opencover.xml" \
           /d:sonar.typescript.lcov.reportPaths=FuelPriceWizard.UI/coverage/lcov.info
         dotnet build FuelPriceWizard.sln
