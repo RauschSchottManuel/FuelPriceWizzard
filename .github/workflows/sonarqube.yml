@@ -39,7 +39,7 @@ jobs:
 
     - name: Run Angular tests
       working-directory: ./FuelPriceWizard.UI/fuelpricewizard
-      run: npm run test -- --watch=false --code-coverage
+      run: npm run test -- --watch=false --code-coverage --browsers=ChromeHeadless
 
     # Build and test .NET projects
     - name: Build .NET projects
