@@ -38,7 +38,7 @@ namespace FuelPriceWizard.DataCollector
 
             foreach (var collectorTask in collectorTasks)
             {
-                collectorTask.Start(CollectMethod(logger));
+                collectorTask.Start(CollectMethod());
             }
 
             Console.ReadKey();
