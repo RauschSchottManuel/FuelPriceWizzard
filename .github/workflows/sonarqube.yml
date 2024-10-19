@@ -44,6 +44,15 @@ jobs:
         distribution: ${{ env.JAVA_DISTRIBUTION }}
         java-version: ${{ env.JAVA_VERSION }}
 
+    - name: Cache SonarQube settings
+      uses: actions/cache@v4
+      with:
+        path: ~/.sonar/cache
+        key: ${{ runner.os }}-sonar-cache-${{ hashFiles('**/*.sln') }}
+        restore-keys: |
+          ${{ runner.os }}-sonar-cache-
+
+
     - name: Install dependencies (Angular)
       working-directory: ./FuelPriceWizard.UI/fuelpricewizard
       run: npm install
@@ -74,59 +83,4 @@ jobs:
           /d:sonar.scanner.skipJreProvisioning=true \
           /d:sonar.cs.opencover.reportsPaths="EControlCollectorService/coverage.opencover.xml,FuelPriceWizard.API/coverage.opencover.xml,FuelPriceWizard.BusinessLogic/coverage.opencover.xml,FuelPriceWizard.DataAccess/coverage.opencover.xml,FuelPriceWizard.Domain/coverage.opencover.xml,FuelPriceWizard.DataCollector/coverage.opencover.xml,MockUpFuelPriceSourceCollectorService/coverage.opencover.xml" \
           /d:sonar.typescript.lcov.reportPaths=FuelPriceWizard.UI/coverage/lcov.info
-        dotnet build FuelPriceWizard.sln
         dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
-  # general:
-  #   name: General build and analyze
-  #   runs-on: ubuntu-latest
-    
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #       with:
-  #         fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-  #     - uses: sonarsource/sonarqube-scan-action@master
-  #       env:
-  #         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-  #         SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-  #     If you wish to fail your job when the Quality Gate is red, uncomment the
-  #     following lines. This would typically be used to fail a deployment.
-  #     - uses: sonarsource/sonarqube-quality-gate-action@master
-  #       timeout-minutes: 5
-  #       env:
-  #         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-#  dotnet:
-#    name: .NET Build and analyze
-#    runs-on: windows-latest
-#    steps:
-#      - name: Set up JDK 17
-#        uses: actions/setup-java@v1
-#        with:
-#          java-version: 1.17
-#      - uses: actions/checkout@v2
-#        with:
-#          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-#      - name: Cache SonarQube packages
-#        uses: actions/cache@v1
-#        with:
-#          path: ~\.sonar\cache
-#          key: ${{ runner.os }}-sonar
-#          restore-keys: ${{ runner.os }}-sonar
-#      - name: Cache SonarQube scanner
-#        id: cache-sonar-scanner
-#        uses: actions/cache@v1
-#        with:
-#          path: .\.sonar\scanner
-#          key: ${{ runner.os }}-sonar-scanner
-#          restore-keys: ${{ runner.os }}-sonar-scanner
-#      - name: Install SonarQube scanner
-#        if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
-#        shell: powershell
-#        run: |
-#          New-Item -Path .\.sonar\scanner -ItemType Directory
-#          dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
-#      - name: Build and analyze
-#        shell: powershell
-#        run: |
-#          .\.sonar\scanner\dotnet-sonarscanner begin /k:"example" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="${{ secrets.SONAR_HOST_URL }}"
-#          dotnet build
-#          .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
