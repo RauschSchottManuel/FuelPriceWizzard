@@ -62,6 +62,7 @@ jobs:
       run: |
         dotnet-sonarscanner begin /k:"FuelPriceWizzard" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" \
           /d:sonar.host.url="${{ secrets.SONAR_HOST_URL }}" \
+          /d:sonar.projectBaseDir="$(pwd)" \
           /d:sonar.cs.opencover.reportsPaths="EControlCollectorService/coverage.opencover.xml,FuelPriceWizard.API/coverage.opencover.xml,FuelPriceWizard.BusinessLogic/coverage.opencover.xml,FuelPriceWizard.DataAccess/coverage.opencover.xml,FuelPriceWizard.Domain/coverage.opencover.xml,FuelPriceWizard.DataCollector/coverage.opencover.xml,MockUpFuelPriceSourceCollectorService/coverage.opencover.xml" \
           /d:sonar.typescript.lcov.reportPaths=FuelPriceWizard.UI/coverage/lcov.info
         dotnet build FuelPriceWizard.sln
