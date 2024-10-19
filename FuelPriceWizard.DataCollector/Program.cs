@@ -81,8 +81,8 @@ namespace FuelPriceWizard.DataCollector
                 fetchSettings.ExcludedWeekdays, fetchSettings.StartNextFullHour, CancellationToken.None);
         }
 
-        private static Func<IFuelPriceSourceService, Task> CollectMethod(Serilog.Core.Logger logger) =>
-            async (service) =>
+        private static Func<ILogger, IFuelPriceSourceService, Task> CollectMethod() =>
+            async (logger, service) =>
             {
                 var prices = await service.FetchPricesByLocationAsync(48.287689M, 14.107360M);
 

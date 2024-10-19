@@ -1,8 +1,10 @@
-﻿namespace FuelPriceWizard.DataCollector
+﻿using Serilog;
+
+namespace FuelPriceWizard.DataCollector
 {
     public interface IRepeatingTask<T>
     {
-        Task Start(Func<T, Task> function);
+        Task Start(Func<ILogger, T, Task> function);
 
         Task StopAsync();
 

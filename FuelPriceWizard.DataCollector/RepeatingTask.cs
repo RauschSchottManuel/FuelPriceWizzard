@@ -13,7 +13,7 @@ namespace FuelPriceWizard.DataCollector
 
         private bool _isRunning = false, _disposed = false;
 
-        public async Task Start(Func<T, Task> function)
+        public async Task Start(Func<ILogger, T, Task> function)
         {
             if (_isRunning)
             {
@@ -72,7 +72,7 @@ namespace FuelPriceWizard.DataCollector
         public string GetGenericType() =>
             _service!.GetType().GetGenericArguments()[0].ToString();
 
-        public async Task ExecutePeriodically(Func<T, Task> function)
+        public async Task ExecutePeriodically(Func<ILogger, T, Task> function)
         {
             try
             {
@@ -82,7 +82,7 @@ namespace FuelPriceWizard.DataCollector
 
                     try
                     {
-                        await function(_service);
+                        await function(logger, _service);
                     }
                     catch (Exception ex)
                     {
