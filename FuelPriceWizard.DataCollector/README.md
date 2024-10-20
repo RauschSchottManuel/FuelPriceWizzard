@@ -112,7 +112,7 @@ namespace DemoCollectorService
 }
 ```
 
-5. Add the appsetings.json assembly entry
+5. Add the appsetings.json assembly entry in the FuelPriceWizard.DataCollector project
 
 ```json
  "ImplementationAssemblies": [
