@@ -9,19 +9,15 @@ namespace MockUpFuelPriceSourceImplementation
 {
     public class MockUpFuelPriceService : BaseFuelPriceSourceService<MockUpFuelPriceService>, IFuelPriceSourceService
     {
-        private readonly HttpClient _httpClient;
-
         public override Dictionary<string, Enums.FuelType> FuelTypeMapping => new();
         public override Enums.Currency Currency => Enums.Currency.EUR;
 
-        public MockUpFuelPriceService(IConfiguration config, 
-            HttpClient httpClient, 
-            ILogger<MockUpFuelPriceService> logger, 
+        public MockUpFuelPriceService(IConfiguration config,
+            ILogger<MockUpFuelPriceService> logger,
             IFuelTypeRepository fuelTypeRepository,
             ICurrencyRepository currencyRepository) 
             : base(config, logger, fuelTypeRepository, currencyRepository)
         {
-            _httpClient = httpClient;
         }
 
         public Task<IEnumerable<PriceReading>> FetchPricesByLocationAsync(decimal lat, decimal lon, bool includeClosed = true)
