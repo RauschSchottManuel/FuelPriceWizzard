@@ -56,4 +56,4 @@ jobs:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: Run tests
-        run: dotnet test -c Release --no-build
+        run: dotnet test -c Release 
