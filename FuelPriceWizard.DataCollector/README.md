@@ -46,6 +46,11 @@ To add the new service add a new entry in the appsettings.json file under the **
 - ***FilePath:*** Defines ***where the .dll file is located***, normally this is the active folder (working directory) and therefore the filename itsself is sufficient but if the file is located somewhere else you would have to specify the relative path here. (``e.g. ..\\..\\..\\..\\MockUpFuelPriceSourceCollectorService\\bin\\debug\\net8.0\\MockUpFuelPriceSourceCollectorService.dll`` => Specifies the .dll file in the build output directory of the MockUpFuelPriceSourceCollectorService project)
 - ***Type:*** Defines the ***full name of the service class*** (including its namespace)
 
+## Create unit tests for a collector service
+To create unit tests for the collector service you will have to create a new xUnit project in the ``Tests`` folder and call it ``<YourServiceName>CollectorService.Tests``
+
+It's as easy as that and the rest is done automatically.
+
 ## Demo collector service configuration
 This section shows a full demo configuration of a new collector service (**DemoCollectorService**)
 
