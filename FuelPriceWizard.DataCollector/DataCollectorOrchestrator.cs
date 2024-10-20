@@ -11,7 +11,7 @@ namespace FuelPriceWizard.DataCollector
         ILoggerFactory loggerFactory,
         IFuelTypeRepository fuelTypeRepository) : IDataCollectorOrchestrator
     {
-        public ILogger<DataCollectorOrchestrator> OrchestratorLogger { get; } = orchestratorLogger;
+        public ILogger<DataCollectorOrchestrator> Logger { get; } = orchestratorLogger;
         public IConfiguration Configuration { get; } = configuration;
         public ILoggerFactory LoggerFactory { get; } = loggerFactory;
         public IFuelTypeRepository FuelTypeRepository { get; } = fuelTypeRepository;
@@ -32,7 +32,7 @@ namespace FuelPriceWizard.DataCollector
 
                 collectorTasks.Add(task);
 
-                this.OrchestratorLogger.LogInformation("Finished creating task for instance {ServiceName}", service.GetType().GetGenericArguments()[0]);
+                this.Logger.LogInformation("Finished creating task for instance {ServiceName}", service.GetType().GetGenericArguments()[0]);
             }
 
             this.Tasks = collectorTasks;
@@ -48,7 +48,7 @@ namespace FuelPriceWizard.DataCollector
 
             if (fetchSettings is null)
             {
-                this.OrchestratorLogger.LogError("No FetchSettings specified in appsettings.{ServiceName}.json or GetFetchSettingsSection() not implemented!"
+                this.Logger.LogError("No FetchSettings specified in appsettings.{AppsettingsServiceName}.json or GetFetchSettingsSection() not implemented!"
                     + " Skipping creation of task for instance {ServiceName}",
                     serviceClassName, serviceClassName);
                 return null;
@@ -64,12 +64,12 @@ namespace FuelPriceWizard.DataCollector
 
             if (interval == TimeSpan.Zero)
             {
-                this.OrchestratorLogger.LogError("Invalid fetch interval specified! Skipping creation of task for instance {ServiceName}", serviceClassName);
+                this.Logger.LogError("Invalid fetch interval specified! Skipping creation of task for instance {ServiceName}", serviceClassName);
                 return null;
             }
             var serviceLogger = this.LoggerFactory.CreateLogger(serviceClassName);
 
-            this.OrchestratorLogger.LogInformation("Creating task for instance {ServiceName}", serviceClassName);
+            this.Logger.LogInformation("Creating task for instance {ServiceName}", serviceClassName);
 
             return new RepeatingTask<IFuelPriceSourceService>(
                 serviceLogger, interval, service,

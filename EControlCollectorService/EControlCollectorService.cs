@@ -10,9 +10,8 @@ using Enums = FuelPriceWizard.BusinessLogic.Modules.Enums;
 
 namespace EControlCollectorService
 {
-    public class EControlCollectorService : BaseFuelPriceSourceService, IFuelPriceSourceService
+    public class EControlCollectorService : BaseFuelPriceSourceService<EControlCollectorService>, IFuelPriceSourceService
     {
-        private readonly ILogger<EControlCollectorService> _logger;
         private readonly HttpClient _httpClient;
 
         public override Dictionary<string, Enums.FuelType> FuelTypeMapping=> new()
@@ -28,10 +27,9 @@ namespace EControlCollectorService
             ILogger<EControlCollectorService> logger,
             IFuelTypeRepository fuelTypeRepository,
             ICurrencyRepository currencyRepository)
-            : base(config, fuelTypeRepository, currencyRepository)
+            : base(config, logger, fuelTypeRepository, currencyRepository)
         {
             _httpClient = httpClient;
-            _logger = logger;
         }
 
         public async Task<IEnumerable<PriceReading>> FetchPricesByLocationAsync(decimal lat, decimal lon, bool includeClosed = true)
@@ -48,13 +46,13 @@ namespace EControlCollectorService
 
         public async Task<IEnumerable<PriceReading>> FetchPricesByLocationAndFuelTypeAsync(decimal lat, decimal lon, Enums.FuelType fuelType, bool includeClosed = true)
         {
-            this._logger.LogInformation("Starting to collect prices for location (latitude: {Latitude}, longitude: {Longitude}) and fuel type {FuelType} {IncludeClosed} ...", lat, lon, fuelType, includeClosed ? "including closed locations" : "excluding closed locations");
+            this.Logger.LogInformation("Starting to collect prices for location (latitude: {Latitude}, longitude: {Longitude}) and fuel type {FuelType} {IncludeClosed} ...", lat, lon, fuelType, includeClosed ? "including closed locations" : "excluding closed locations");
 
             var eControlFuelType = MapFromFuelType(fuelType);
 
             if (eControlFuelType is null)
             {
-                this._logger.LogWarning("The specified fuel type ({FuelType}) is not supported by E-Control. Skipping this fetch operation.", fuelType);
+                this.Logger.LogWarning("The specified fuel type ({FuelType}) is not supported by E-Control. Skipping this fetch operation.", fuelType);
                 return [];
             }
             var queryParams = new Dictionary<string, string>()
@@ -69,11 +67,8 @@ namespace EControlCollectorService
                 "/search/gas-stations/by-address",
                 $"?{string.Join('&', queryParams.Select(p => $"{Uri.EscapeDataString(p.Key)}={Uri.EscapeDataString(p.Value)}"))}");
 
-            this._logger.LogInformation("Fetching prices from E-Control ...");
+            this.Logger.LogInformation("Fetching prices from E-Control ...");
             var response = await this._httpClient.GetAsync(requestUrl);
-            this._logger.LogInformation("Finished fetching prices from E-Control!");
-
-            this._logger.LogInformation("Converting prices to price readings ...");
 
             var responseJson = await response.Content.ReadAsStringAsync();
 
@@ -85,7 +80,7 @@ namespace EControlCollectorService
 
                 if (requestedStation == null)
                 {
-                    this._logger.LogError("No gas station found at the specified location! (lat: {Latitude}, lon: {Longitude})", lat, lon);
+                    this.Logger.LogError("No gas station found at the specified location! (lat: {Latitude}, lon: {Longitude})", lat, lon);
                     return [];
                 }
 
@@ -96,12 +91,12 @@ namespace EControlCollectorService
                     Currency = await GetCurrencyObjectAsync(),
                 });
 
-                this._logger.LogInformation("Completed collecting prices!");
+                this.Logger.LogInformation("Completed collecting prices!");
                 return await Task.WhenAll(prices.ToList());
             }
             catch (Exception ex)
             {
-                this._logger.LogError(ex, "Something went wrong while parsing the response!");
+                this.Logger.LogError(ex, "Something went wrong while parsing the response!");
                 return [];
             }
         }

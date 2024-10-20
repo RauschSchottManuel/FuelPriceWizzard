@@ -7,9 +7,8 @@ using FuelPriceWizard.DataAccess;
 
 namespace MockUpFuelPriceSourceImplementation
 {
-    public class MockUpFuelPriceService : BaseFuelPriceSourceService, IFuelPriceSourceService
+    public class MockUpFuelPriceService : BaseFuelPriceSourceService<MockUpFuelPriceService>, IFuelPriceSourceService
     {
-        private readonly ILogger _logger;
         private readonly HttpClient _httpClient;
 
         public override Dictionary<string, Enums.FuelType> FuelTypeMapping => new();
@@ -20,10 +19,9 @@ namespace MockUpFuelPriceSourceImplementation
             ILogger<MockUpFuelPriceService> logger, 
             IFuelTypeRepository fuelTypeRepository,
             ICurrencyRepository currencyRepository) 
-            : base(config, fuelTypeRepository, currencyRepository)
+            : base(config, logger, fuelTypeRepository, currencyRepository)
         {
             _httpClient = httpClient;
-            _logger = logger;
         }
 
         public Task<IEnumerable<PriceReading>> FetchPricesByLocationAsync(decimal lat, decimal lon, bool includeClosed = true)
@@ -33,7 +31,7 @@ namespace MockUpFuelPriceSourceImplementation
 
         public Task<IEnumerable<PriceReading>> FetchPricesByLocationAndFuelTypeAsync(decimal lat, decimal lon, Enums.FuelType fuelType, bool includeClosed = true)
         {
-            _logger.LogDebug("Test nein");
+            this.Logger.LogDebug("Test nein");
             return Task.FromResult<IEnumerable<PriceReading>>([]);
         }
     }
