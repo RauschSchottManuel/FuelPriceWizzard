@@ -46,11 +46,78 @@ To add the new service add a new entry in the appsettings.json file under the **
 - ***FilePath:*** Defines ***where the .dll file is located***, normally this is the active folder (working directory) and therefore the filename itsself is sufficient but if the file is located somewhere else you would have to specify the relative path here. (``e.g. ..\\..\\..\\..\\MockUpFuelPriceSourceCollectorService\\bin\\debug\\net8.0\\MockUpFuelPriceSourceCollectorService.dll`` => Specifies the .dll file in the build output directory of the MockUpFuelPriceSourceCollectorService project)
 - ***Type:*** Defines the ***full name of the service class*** (including its namespace)
 
-## Demo collector service configuration (TODO)
+## Demo collector service configuration
 This section shows a full demo configuration of a new collector service (**DemoCollectorService**)
 
-1. Create the project "DemoCollectorService"
-2. Create the entry-point class and extend/implement the [BaseFuelPriceSourceService](../FuelPriceWizard.BusinessLogic/BaseFuelPriceSourceService.cs)  and [IFuelPriceSourceService](../FuelPriceWizard.BusinessLogic/IFuelPriceSourceService.cs)
-3. Add the collector-specific appsettings.DemoCollectorService.json file including the FetchSettings section 
-4. Add the appsetings.json assembly entry
+1. Create the ClassLibrary project under the ``CollectorServices`` folder and add a reference to the ``FuelPriceWizard.BusinessLogic`` project
 
+![DemoCollectorService](DemoCollectorService_ProjectCreation.png)
+
+2. Add a reference to the FuelPriceWizard.BusinessLogic project
+
+3. Create and implement the entry-point class and extend [BaseFuelPriceSourceService](../FuelPriceWizard.BusinessLogic/BaseFuelPriceSourceService.cs)  and [IFuelPriceSourceService](../FuelPriceWizard.BusinessLogic/IFuelPriceSourceService.cs)
+
+```cs
+using FuelPriceWizard.BusinessLogic;
+using FuelPriceWizard.DataAccess;
+using FuelPriceWizard.Domain.Models;
+using Enums = FuelPriceWizard.BusinessLogic.Modules.Enums;
+using Microsoft.Extensions.Configuration;
+
+namespace DemoCollectorService
+{
+    public class DemoCollectorService : BaseFuelPriceSourceService, IFuelPriceSourceService
+    {
+        public DemoCollectorService(IConfiguration configuration,
+            IFuelTypeRepository fuelTypeRepository, ICurrencyRepository currencyRepository)
+            : base(configuration, fuelTypeRepository, currencyRepository)
+        {
+        }
+
+        public override Dictionary<string, Enums.FuelType> FuelTypeMapping => new()
+        {
+            { "DIE", Enums.FuelType.Diesel },
+            { "SUP", Enums.FuelType.Super },
+        };
+
+        public override Enums.Currency Currency => Enums.Currency.EUR;
+
+        public Task<IEnumerable<PriceReading>> FetchPricesByLocationAndFuelTypeAsync(decimal lat, decimal lon,
+          Enums.FuelType fuelType, bool includeClosed = true)
+        {
+            //TODO: IMPLEMENT THE FETCH METHOD FOR LOCATION AND FUELTYPE
+        }
+
+        public Task<IEnumerable<PriceReading>> FetchPricesByLocationAsync(decimal lat, decimal lon, bool includeClosed = true)
+        {
+            //TODO: IMPLEMENT THE FETCH METHOD FOR LOCATION
+        }
+    }
+}
+```
+
+4. Add the collector-specific appsettings.DemoCollectorService.json file including the FetchSettings section
+
+![appsettings.DemoCollectorService.json](DemoCollectorService_appsettings.png)
+
+```json
+{
+  "FetchSettings": {
+    "AssemblyName": "EControlCollectorService",
+    "ExcludedWeekdays": [ "Saturday", "Sunday" ],
+    "IntervalValue": 1,
+    "IntervalUnit": "Minute",
+    "StartNextFullHour": false
+  }
+}
+```
+
+5. Add the appsetings.json assembly entry
+
+```json
+ "ImplementationAssemblies": [
+   {
+     "FilePath": "DemoCollectorService.dll",
+     "Type": "DemoCollectorService.DemoCollectorService"
+   }
+```
