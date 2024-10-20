@@ -26,7 +26,7 @@ The **FetchSettings section is mandatory** and defined as follows:
 | IntervalUnit | Defines the interval unit of the interval value (every x units) | <ul><li>Second (every x seconds)</li><li>Minute (every x minutes)</li><li>Hour (every x hours)</li></ul> |
 | StartNextFullHour | Defines if the collection circle is run with the interval starting on the next full hour or immediatly with the start of the service<br>``(e.g. service is started at 12:43 but the first collection circle starts at 13:00)`` | <ul><li>true</li><li>false</li></ul> |
 
-### 3. Create the entry-point class extending the [BaseFuelPriceSourceService](../FuelPriceWizard.BusinessLogic/BaseFuelPriceSourceService.cs) class and implementing the [IFuelPriceSourceService](../FuelPriceWizard.BusinessLogic/IFuelPriceSourceService.cs) interface included in the ``FuelPriceWizard.BusinessLogic`` project
+### 3. Create the entry-point class extending the [BaseFuelPriceSourceService&lt;T&gt;](../FuelPriceWizard.BusinessLogic/BaseFuelPriceSourceService.cs) class and implementing the [IFuelPriceSourceService](../FuelPriceWizard.BusinessLogic/IFuelPriceSourceService.cs) interface included in the ``FuelPriceWizard.BusinessLogic`` project
 
 ### 4. Adding the new service
 To add the new service add a new entry in the appsettings.json file under the **ImplementationAssemblies** section:
@@ -55,7 +55,7 @@ This section shows a full demo configuration of a new collector service (**DemoC
 
 2. Add a reference to the FuelPriceWizard.BusinessLogic project
 
-3. Create and implement the entry-point class and extend [BaseFuelPriceSourceService](../FuelPriceWizard.BusinessLogic/BaseFuelPriceSourceService.cs)  and [IFuelPriceSourceService](../FuelPriceWizard.BusinessLogic/IFuelPriceSourceService.cs)
+3. Create and implement the entry-point class and extend [BaseFuelPriceSourceService&lt;T&gt;](../FuelPriceWizard.BusinessLogic/BaseFuelPriceSourceService.cs)  and [IFuelPriceSourceService](../FuelPriceWizard.BusinessLogic/IFuelPriceSourceService.cs)
 
 ```cs
 using FuelPriceWizard.BusinessLogic;
@@ -66,11 +66,11 @@ using Microsoft.Extensions.Configuration;
 
 namespace DemoCollectorService
 {
-    public class DemoCollectorService : BaseFuelPriceSourceService, IFuelPriceSourceService
+    public class DemoCollectorService : BaseFuelPriceSourceService<DemoCollectorService>, IFuelPriceSourceService
     {
-        public DemoCollectorService(IConfiguration configuration,
+        public DemoCollectorService(IConfiguration configuration, ILogger<DemoCollectorService> logger
             IFuelTypeRepository fuelTypeRepository, ICurrencyRepository currencyRepository)
-            : base(configuration, fuelTypeRepository, currencyRepository)
+            : base(configuration, logger, fuelTypeRepository, currencyRepository)
         {
         }
 
@@ -103,7 +103,7 @@ namespace DemoCollectorService
 ```json
 {
   "FetchSettings": {
-    "AssemblyName": "EControlCollectorService",
+    "AssemblyName": "DemoCollectorService",
     "ExcludedWeekdays": [ "Saturday", "Sunday" ],
     "IntervalValue": 1,
     "IntervalUnit": "Minute",
