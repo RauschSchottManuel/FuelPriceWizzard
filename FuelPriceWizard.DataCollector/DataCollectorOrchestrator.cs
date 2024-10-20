@@ -6,6 +6,13 @@ using Microsoft.Extensions.Logging;
 
 namespace FuelPriceWizard.DataCollector
 {
+    /// <summary>
+    /// Handles all data collector task scheduling, creation and start/stop actions.
+    /// </summary>
+    /// <param name="orchestratorLogger"></param>
+    /// <param name="configuration"></param>
+    /// <param name="loggerFactory"></param>
+    /// <param name="fuelTypeRepository"></param>
     public class DataCollectorOrchestrator(ILogger<DataCollectorOrchestrator> orchestratorLogger,
         IConfiguration configuration,
         ILoggerFactory loggerFactory,
