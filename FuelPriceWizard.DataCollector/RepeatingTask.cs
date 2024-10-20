@@ -52,7 +52,6 @@ namespace FuelPriceWizard.DataCollector
             _isRunning = false;
 
             _timer.Dispose(); // Stop the timer
-            logger.LogInformation("The timer for {TaskType} is disposed.", nameof(T));
 
             if (_periodicTask is not null)
             {
@@ -122,7 +121,6 @@ namespace FuelPriceWizard.DataCollector
                 catch (TaskCanceledException ex)
                 {
                     logger.LogWarning(ex, "The delay until the next full hour was canceled.");
-                    throw;
                 }
             }
         }
@@ -146,8 +144,7 @@ namespace FuelPriceWizard.DataCollector
                 }
                 catch (TaskCanceledException ex)
                 {
-                    logger.LogInformation(ex, "Task was canceled before the next scheduled execution.");
-                    throw;
+                    logger.LogWarning(ex, "Task was canceled before the next scheduled execution.");
                 }
             }
         }

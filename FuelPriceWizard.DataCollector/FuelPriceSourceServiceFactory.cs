@@ -53,9 +53,8 @@ namespace FuelPriceWizard.DataCollector
                 } catch(Exception ex)
                 {
 
-                    logger.LogError(
-                        "Something went wrong while loading the assembly {FilePath}.",
-                        configSection.FilePath, ex);
+                    logger.LogError(ex, "Something went wrong while loading the assembly {FilePath}.",
+                        configSection.FilePath);
                 }
             }
 
