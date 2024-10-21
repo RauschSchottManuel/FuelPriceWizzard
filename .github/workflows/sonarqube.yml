@@ -79,7 +79,7 @@ jobs:
 
     - name: Run tests for .NET projects and collect code coverage
       working-directory: ./
-      run: dotnet test FuelPriceWizard.sln --configuration Release --collect:"XPlat Code Coverage;Format=opencover;OutputDirectory=./coverage;Output=coverage.opencover.xml" --logger "trx"
+      run: dotnet test FuelPriceWizard.sln --configuration Release --collect:"XPlat Code Coverage;Format=opencover;OutputDirectory=coverage;Output=coverage.opencover.xml" --logger "trx"
 
     - name: List coverage files
       run: |
