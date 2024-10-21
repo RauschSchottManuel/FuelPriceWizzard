@@ -73,13 +73,9 @@ jobs:
       working-directory: ./
       run: dotnet build FuelPriceWizard.sln --configuration Release
 
-    - name: Ensure coverage folder is created
-      run: |
-        mkdir -p ./coverage
-
     - name: Run tests for .NET projects and collect code coverage
       working-directory: ./
-      run: dotnet test FuelPriceWizard.sln --configuration Release --collect:"XPlat Code Coverage;Format=opencover;OutputDirectory=coverage;Output=coverage.opencover.xml" --logger "trx"
+      run: dotnet test FuelPriceWizard.sln --configuration Release --collect:"XPlat Code Coverage;Format=opencover;Output=coverage.opencover.xml" --logger "trx"
 
     - name: List coverage files
       run: |
@@ -90,7 +86,7 @@ jobs:
         echo "DataCollector.Tests directory"
         ls -la ./FuelPriceWizard.DataCollector.Tests/
         echo "./coverage directory"
-        ls -la ./coverage/
+        ls -la ./**/TestResults/**/coverage.opencover.xml
 
     - name: SonarQube Scan
       run: |
@@ -101,7 +97,7 @@ jobs:
           /d:sonar.projectBaseDir="$(pwd)" \
           /d:sonar.scanner.skipJreProvisioning=true \
           /d:sonar.coverage.exclusions="**/**/Migrations/**,**/**/obj/**,**/**/bin/**" \
-          /d:sonar.cs.opencover.reportsPaths="./coverage/coverage.opencover.xml" \
+          /d:sonar.cs.opencover.reportsPaths="./**/TestResults/**/coverage.opencover.xml" \
           /d:sonar.cs.vstest.reportsPaths="**/TestResults/*.trx" \
           /d:sonar.typescript.lcov.reportPaths=FuelPriceWizard.UI/fuelpricewizard/coverage/lcov.info
         dotnet build FuelPriceWizard.sln
