@@ -81,7 +81,8 @@ jobs:
       run: |
         echo "Checking for coverage files..."
         ls -la ./**/TestResults/
-        ls -la ./coverage/coverage.opencover.xml
+        ls -la ./coverage/
+        ls -la ./
 
     - name: SonarQube Scan
       run: |
