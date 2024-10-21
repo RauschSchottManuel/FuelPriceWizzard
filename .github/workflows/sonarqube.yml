@@ -75,11 +75,7 @@ jobs:
 
     - name: Run tests for .NET projects and collect code coverage
       working-directory: ./
-      run: dotnet test FuelPriceWizard.sln --configuration Release \
-        /p:CollectCoverage=true \
-        /p:CoverletOutput=coverage.opencover.xml \
-        /p:CoverletOutputFormat=opencover \
-        --logger "trx"
+      run: dotnet test FuelPriceWizard.sln --configuration Release /p:CollectCoverage=true /p:CoverletOutput=coverage.opencover.xml /p:CoverletOutputFormat=opencover --logger "trx"
 
     - name: List coverage files
       run: |
