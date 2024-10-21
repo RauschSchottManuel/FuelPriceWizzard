@@ -73,9 +73,12 @@ jobs:
       working-directory: ./
       run: dotnet build FuelPriceWizard.sln --configuration Release
 
+    - name: Ensure coverage directory exists
+      run: mkdir -p ./coverage
+
     - name: Run tests for .NET projects and collect code coverage
       working-directory: ./
-      run: dotnet test FuelPriceWizard.sln --configuration Release /v:detailed /p:CollectCoverage=true /p:CoverletOutput=./coverage/coverage.opencover.xml /p:CoverletOutputFormat=opencover --logger "trx" --collect:"XPlat Code Coverage"
+      run: dotnet test FuelPriceWizard.sln --configuration Release /v:detailed /p:CollectCoverage=true /p:CoverletOutput=./coverage/coverage.opencover.xml /p:CoverletOutputFormat=opencover --logger "trx"
 
     - name: List coverage files
       run: |
@@ -83,6 +86,7 @@ jobs:
         ls -la ./**/TestResults/
         ls -la ./
         ls -la ./FuelPriceWizard.DataCollector.Tests/
+        ls -la ./coverage/
 
     - name: SonarQube Scan
       run: |
