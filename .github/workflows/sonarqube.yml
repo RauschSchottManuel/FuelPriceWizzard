@@ -75,7 +75,7 @@ jobs:
 
     - name: Run tests for .NET projects and collect code coverage
       working-directory: ./
-      run: dotnet test FuelPriceWizard.sln --configuration Release --collect:"XPlat Code Coverage"
+      run: dotnet test FuelPriceWizard.sln --configuration Release /p:CollectCoverage=true /p:CoverletOutputFormat=opencover --logger "trx"
 
     - name: SonarQube Scan
       run: |
@@ -83,7 +83,8 @@ jobs:
           /d:sonar.host.url="${{ secrets.SONAR_HOST_URL }}" \
           /d:sonar.projectBaseDir="$(pwd)" \
           /d:sonar.scanner.skipJreProvisioning=true \
-          /d:sonar.cs.opencover.reportsPaths="EControlCollectorService/coverage.opencover.xml,FuelPriceWizard.API/coverage.opencover.xml,FuelPriceWizard.BusinessLogic/coverage.opencover.xml,FuelPriceWizard.DataAccess/coverage.opencover.xml,FuelPriceWizard.Domain/coverage.opencover.xml,FuelPriceWizard.DataCollector/coverage.opencover.xml,MockUpFuelPriceSourceCollectorService/coverage.opencover.xml" \
+          /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml" \
+          /d:sonar.cs.vstest.reportsPaths="**/TestResults/*.trx" \
           /d:sonar.typescript.lcov.reportPaths=FuelPriceWizard.UI/fuelpricewizard/coverage/lcov.info
         dotnet build FuelPriceWizard.sln
         dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
