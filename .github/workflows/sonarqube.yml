@@ -81,7 +81,7 @@ jobs:
       run: |
         echo "Checking for coverage files..."
         ls -la ./**/TestResults/
-        ls -la coverage.opencover.xml
+        ls -la ./
 
     - name: SonarQube Scan
       run: |
@@ -92,7 +92,7 @@ jobs:
           /d:sonar.projectBaseDir="$(pwd)" \
           /d:sonar.scanner.skipJreProvisioning=true \
           /d:sonar.coverage.exclusions="**/**/Migrations/**,**/**/obj/**,**/**/bin/**" \
-          /d:sonar.cs.opencover.reportsPaths="**/**/coverage.opencover.xml" \
+          /d:sonar.cs.opencover.reportsPaths="coverage.opencover.xml" \
           /d:sonar.cs.vstest.reportsPaths="**/TestResults/*.trx" \
           /d:sonar.typescript.lcov.reportPaths=FuelPriceWizard.UI/fuelpricewizard/coverage/lcov.info
         dotnet build FuelPriceWizard.sln
