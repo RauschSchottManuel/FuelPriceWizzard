@@ -57,7 +57,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: dotnet-build
-          path: ./FuelPriceWizard/**/bin/Release/**
+          path: ./FuelPriceWizard/**/bin/Release**
 
   test:
     runs-on: ubuntu-latest
@@ -81,17 +81,20 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore FuelPriceWizard.sln
 
-      - name: Run tests with coverage
-        run: dotnet test FuelPriceWizard.sln --configuration Release --collect:"XPlat Code Coverage;Format=opencover" --logger "trx"
+      - name: Run .NET tests and collect code coverage
+        run: |
+          dotnet test FuelPriceWizard.sln --configuration Release \
+            --collect:"XPlat Code Coverage;Format=opencover" \
+            --logger "trx;LogFileName=TestResults.trx"
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
         with:
           name: dotnet-test-results
-          path: ./FuelPriceWizard/**/TestResults/**
+          path: '**/TestResults/*.trx'
 
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
         with:
           name: dotnet-coverage
-          path: ./FuelPriceWizard/**/TestResults/**/coverage.opencover.xml
+          path: '**/TestResults/**/coverage.opencover.xml'
