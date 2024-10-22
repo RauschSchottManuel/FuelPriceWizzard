@@ -47,8 +47,8 @@ jobs:
       - name: Run .NET tests and collect code coverage
         run: |
           dotnet test FuelPriceWizard.sln --configuration Release \
-            --collect:"XPlat Code Coverage;Format=opencover" \
-            --logger "trx;LogFileName=TestResults.trx"
+              --collect:"XPlat Code Coverage;Format=opencover;Output=coverage.opencover.xml" \
+              --logger "trx"
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
