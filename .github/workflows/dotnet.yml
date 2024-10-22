@@ -1,28 +1,28 @@
-# This workflow will build, test and deploy the .NET projects
-
 name: .NET
 
 on:
   push:
-    branches: ["main"]
+    branches:
+      - main
     paths:
       - "FuelPriceWizard.API**"
       - "FuelPriceWizard.BusinessLogic**"
       - "FuelPriceWizard.DataAccess**"
       - "FuelPriceWizard.DataCollector**"
       - "FuelPriceWizard.Domain**"
-      - "**CollectorService"
-      - "**CollectorService.Tests"
+      - "**CollectorService**"
+      - "**CollectorService.Tests**"
   pull_request:
-    branches: ["main"]
+    branches:
+      - main
     paths:
       - "FuelPriceWizard.API**"
       - "FuelPriceWizard.BusinessLogic**"
       - "FuelPriceWizard.DataAccess**"
       - "FuelPriceWizard.DataCollector**"
       - "FuelPriceWizard.Domain**"
-      - "**CollectorService"
-      - "**CollectorService.Tests"
+      - "**CollectorService**"
+      - "**CollectorService.Tests**"
 
 env:
   DOTNET_VERSION: '8.0.x'
@@ -34,26 +34,64 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup .NET
+      - name: Set up .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: Restore dependencies
-        run: dotnet restore
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
 
-      - name: Build
-        run: dotnet build -c Release --no-restore
+      - name: Restore dependencies
+        run: dotnet restore FuelPriceWizard.sln
+
+      - name: Build solution
+        run: dotnet build FuelPriceWizard.sln --configuration Release --no-restore
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dotnet-build
+          path: ./FuelPriceWizard/**/bin/Release/
+
   test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
-      - name: Setup .NET
+
+      - name: Set up .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: Run tests
-        run: dotnet test -c Release 
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Restore dependencies
+        run: dotnet restore FuelPriceWizard.sln
+
+      - name: Run tests with coverage
+        run: dotnet test FuelPriceWizard.sln --configuration Release --collect:"XPlat Code Coverage;Format=opencover" --logger "trx"
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: dotnet-test-results
+          path: ./FuelPriceWizard/**/TestResults/
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: dotnet-coverage
+          path: ./FuelPriceWizard/**/TestResults/**/coverage.opencover.xml

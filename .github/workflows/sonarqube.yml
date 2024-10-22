@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
 
 env:
   DOTNET_VERSION: '8.0.x'
@@ -12,93 +15,130 @@ env:
   JAVA_VERSION: '17'
 
 jobs:
-  sonarQube:
-    name: SonarQube Scan
+  dotnet_build:
+    name: Build and Test .NET
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-    - name: Set up .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: ${{ env.DOTNET_VERSION }}
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
 
-    # Install SonarScanner for .NET
-    - name: Install dotnet-sonarscanner
-      run: dotnet tool install --global dotnet-sonarscanner
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
 
-    # Add .NET tools to PATH
-    - name: Set up PATH for dotnet tools
-      run: echo "/home/runner/.dotnet/tools" >> $GITHUB_PATH
+      - name: Restore dependencies
+        run: dotnet restore FuelPriceWizard.sln
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ env.NODE_VERSION }}
+      - name: Build .NET projects
+        run: dotnet build FuelPriceWizard.sln --configuration Release --no-restore
 
-    - name: Set up Java for SonarQube
-      uses: actions/setup-java@v4
-      with:
-        distribution: ${{ env.JAVA_DISTRIBUTION }}
-        java-version: ${{ env.JAVA_VERSION }}
+      - name: Run .NET tests and collect code coverage
+        run: dotnet test FuelPriceWizard.sln --configuration Release --collect:"XPlat Code Coverage;Format=opencover" --logger "trx"
+        
+      - name: Upload .NET Test Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: dotnet-test-results
+          path: ./FuelPriceWizard/**/TestResults/
 
-    - name: Cache SonarQube settings
-      uses: actions/cache@v4
-      with:
-        path: ~/.sonar/cache
-        key: ${{ runner.os }}-sonar-cache-${{ hashFiles('**/.github/workflows/sonarqube.yml') }}
-        restore-keys: |
-          ${{ runner.os }}-sonar-cache-
+  angular_build:
+    name: Build and Test Angular
+    runs-on: ubuntu-latest
 
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-    - name: Install dependencies (Angular)
-      working-directory: ./FuelPriceWizard.UI/fuelpricewizard
-      run: npm install
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
 
-      # Build and test Angular project
-    - name: Build Angular project
-      working-directory: ./FuelPriceWizard.UI/fuelpricewizard
-      run: npm run build
+      - name: Cache Node.js modules
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-
 
-    - name: Run Angular tests
-      working-directory: ./FuelPriceWizard.UI/fuelpricewizard
-      run: npm run test -- --watch=false --code-coverage --browsers=ChromeHeadless
+      - name: Install dependencies
+        run: npm ci
+        working-directory: ./FuelPriceWizard.UI/fuelpricewizard
 
-    # Build and test .NET projects
-    - name: Build .NET projects
-      working-directory: ./
-      run: dotnet build FuelPriceWizard.sln --configuration Release
+      - name: Build Angular project
+        run: npm run build
+        working-directory: ./FuelPriceWizard.UI/fuelpricewizard
 
-    - name: Run tests for .NET projects and collect code coverage
-      working-directory: ./
-      run: dotnet test FuelPriceWizard.sln --configuration Release --collect:"XPlat Code Coverage;Format=opencover;Output=coverage.opencover.xml" --logger "trx"
+      - name: Run Angular tests and collect code coverage
+        run: npm run test -- --watch=false --code-coverage --browsers=ChromeHeadless
+        working-directory: ./FuelPriceWizard.UI/fuelpricewizard
 
-    - name: List coverage files
-      run: |
-        echo "Checking for coverage files..."
-        ls -la ./**/TestResults/
-        echo "root directory"
-        ls -la ./
-        echo "DataCollector.Tests directory"
-        ls -la ./FuelPriceWizard.DataCollector.Tests/
-        echo "./coverage directory"
-        ls -la ./**/TestResults/**/coverage.opencover.xml
+      - name: Upload Angular Test Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: angular-test-results
+          path: ./FuelPriceWizard.UI/fuelpricewizard/coverage
 
-    - name: SonarQube Scan
-      run: |
-        dotnet-sonarscanner begin /k:"RauschSchottManuel_FuelPriceWizzard_ee84ae87-553d-4321-b870-ec9b8be6b491" \
-          /d:"sonar.verbose=true" \
-          /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
-          /d:sonar.host.url="${{ secrets.SONAR_HOST_URL }}" \
-          /d:sonar.projectBaseDir="$(pwd)" \
-          /d:sonar.scanner.skipJreProvisioning=true \
-          /d:sonar.coverage.exclusions="**/**/Migrations/**,**/**/obj/**,**/**/bin/**" \
-          /d:sonar.cs.opencover.reportsPaths="./**/TestResults/**/coverage.opencover.xml" \
-          /d:sonar.cs.vstest.reportsPaths="**/TestResults/*.trx" \
-          /d:sonar.typescript.lcov.reportPaths=FuelPriceWizard.UI/fuelpricewizard/coverage/lcov.info
-        dotnet build FuelPriceWizard.sln
-        dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+  sonarqube_scan:
+    name: SonarQube Scan
+    runs-on: ubuntu-latest
+    needs: [dotnet_build, angular_build]  # Wait for both builds to complete
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Set up Java for SonarQube
+        uses: actions/setup-java@v4
+        with:
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Cache SonarQube settings
+        uses: actions/cache@v4
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar-cache-${{ hashFiles('**/.github/workflows/sonarqube.yml') }}
+          restore-keys: |
+            ${{ runner.os }}-sonar-cache-
+
+      - name: SonarQube Scan
+        run: |
+          dotnet-sonarscanner begin /k:"RauschSchottManuel_FuelPriceWizzard_ee84ae87-553d-4321-b870-ec9b8be6b491" \
+            /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
+            /d:sonar.host.url="${{ secrets.SONAR_HOST_URL }}" \
+            /d:sonar.projectBaseDir="$(pwd)" \
+            /d:sonar.scanner.skipJreProvisioning=true \
+            /d:sonar.coverage.exclusions="**/**/Migrations/**,**/**/obj/**,**/**/bin/**" \
+            /d:sonar.cs.opencover.reportsPaths="./**/TestResults/**/coverage.opencover.xml" \
+            /d:sonar.cs.vstest.reportsPaths="**/TestResults/*.trx" \
+            /d:sonar.typescript.lcov.reportPaths=FuelPriceWizard.UI/fuelpricewizard/coverage/lcov.info
+          dotnet build FuelPriceWizard.sln
+          dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
