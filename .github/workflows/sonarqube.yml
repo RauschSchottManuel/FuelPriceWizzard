@@ -45,13 +45,22 @@ jobs:
         run: dotnet build FuelPriceWizard.sln --configuration Release --no-restore
 
       - name: Run .NET tests and collect code coverage
-        run: dotnet test FuelPriceWizard.sln --configuration Release --collect:"XPlat Code Coverage;Format=opencover" --logger "trx"
-        
-      - name: Upload .NET Test Results
+        run: |
+          dotnet test FuelPriceWizard.sln --configuration Release \
+            --collect:"XPlat Code Coverage;Format=opencover" \
+            --logger "trx;LogFileName=TestResults.trx"
+
+      - name: Upload test results
         uses: actions/upload-artifact@v4
         with:
           name: dotnet-test-results
-          path: ./FuelPriceWizard/**/TestResults/**
+          path: '**/TestResults/*.trx'
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: dotnet-coverage
+          path: '**/TestResults/**/coverage.opencover.xml'
 
   angular_build:
     name: Build and Test Angular
