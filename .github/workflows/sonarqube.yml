@@ -51,7 +51,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: dotnet-test-results
-          path: ./FuelPriceWizard/**/TestResults
+          path: ./FuelPriceWizard/**/TestResults/**
 
   angular_build:
     name: Build and Test Angular
