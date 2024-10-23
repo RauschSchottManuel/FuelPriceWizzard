@@ -26,10 +26,6 @@ export class OsmMapComponent {
 
   public markerLatLongs = input<OsmMapMarker[]>();
 
-  onMapReady(map: Leaflet.Map) {
-
-  }
-
   options(): Leaflet.MapOptions {
     return {
       layers: this.getLayers(),

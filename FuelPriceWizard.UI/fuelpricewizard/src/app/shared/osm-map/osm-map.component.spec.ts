@@ -4,7 +4,7 @@ import { OsmMapComponent, OsmMapMarker } from './osm-map.component';
 import { By } from '@angular/platform-browser';
 import { LeafletModule } from '@asymmetrik/ngx-leaflet';
 import { ComponentRef } from '@angular/core';
-import * as Leaflet from 'leaflet';
+import { TileLayer, Marker } from 'leaflet';
 
 describe('OsmMapComponent', () => {
   let component: OsmMapComponent;
@@ -63,14 +63,6 @@ describe('OsmMapComponent', () => {
     expect(options.layers?.length).toBeGreaterThan(0);
   });
 
-  // Test LeafletMapReady event handling
-  it('should call onMapReady when the map is ready', () => {
-    spyOn(component, 'onMapReady');
-    const fakeMap = new Leaflet.Map(document.createElement('div'));
-    component.onMapReady(fakeMap);
-    expect(component.onMapReady).toHaveBeenCalledWith(fakeMap);
-  });
-
   // Test marker creation
   it('should create markers based on the input data', () => {
     const marker: OsmMapMarker = {
@@ -90,7 +82,7 @@ describe('OsmMapComponent', () => {
   it('should create map layers with TileLayer and marker', () => {
     const layers = component.getLayers();
     expect(layers.length).toBe(2); // One for tile layer, one for marker
-    expect(layers[0]).toBeInstanceOf(Leaflet.TileLayer);
-    expect(layers[1]).toBeInstanceOf(Leaflet.Marker);
+    expect(layers[0]).toBeInstanceOf(TileLayer);
+    expect(layers[1]).toBeInstanceOf(Marker);
   });
 });
