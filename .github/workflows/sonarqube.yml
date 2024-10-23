@@ -53,6 +53,10 @@ jobs:
               --collect:"XPlat Code Coverage;Format=opencover;Output=coverage.opencover.xml" \
               --logger "trx"
 
+      - name: List test results directory
+        run: ls -R ./TestResults
+
+
       - name: Upload test results
         uses: actions/upload-artifact@v4
         with:
