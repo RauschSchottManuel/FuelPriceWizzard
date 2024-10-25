@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using FuelPriceWizard.DataAccess.Constants;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -12,7 +13,7 @@ namespace FuelPriceWizard.DataAccess.Migrations
         {
             migrationBuilder.DropColumn(
                 name: "AddressId",
-                table: "GasStations");
+                table: MigrationConstants.GAS_STATIONS);
 
             migrationBuilder.AlterColumn<decimal>(
                 name: "Value",
@@ -27,12 +28,12 @@ namespace FuelPriceWizard.DataAccess.Migrations
 
             migrationBuilder.AlterColumn<string>(
                 name: "OpeningHours",
-                table: "GasStations",
-                type: "nvarchar(max)",
+                table: MigrationConstants.GAS_STATIONS,
+                type: MigrationConstants.N_VARCHAR_MAX,
                 nullable: false,
                 defaultValue: "",
                 oldClrType: typeof(string),
-                oldType: "nvarchar(max)",
+                oldType: MigrationConstants.N_VARCHAR_MAX,
                 oldNullable: true);
         }
 
@@ -52,15 +53,15 @@ namespace FuelPriceWizard.DataAccess.Migrations
 
             migrationBuilder.AlterColumn<string>(
                 name: "OpeningHours",
-                table: "GasStations",
-                type: "nvarchar(max)",
+                table: MigrationConstants.GAS_STATIONS,
+                type: MigrationConstants.N_VARCHAR_MAX,
                 nullable: true,
                 oldClrType: typeof(string),
-                oldType: "nvarchar(max)");
+                oldType: MigrationConstants.N_VARCHAR_MAX);
 
             migrationBuilder.AddColumn<int>(
                 name: "AddressId",
-                table: "GasStations",
+                table: MigrationConstants.GAS_STATIONS,
                 type: "int",
                 nullable: false,
                 defaultValue: 0);
