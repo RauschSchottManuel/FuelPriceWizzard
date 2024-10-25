@@ -1,3 +1,4 @@
+using FuelPriceWizard.API.DTOs.Mapping;
 using FuelPriceWizard.BusinessLogic;
 using FuelPriceWizard.DataAccess;
 using Serilog;
@@ -17,6 +18,12 @@ builder.Host.UseSerilog((context, configuration) =>
 
 builder.Services.AddFuelPriceWizardBusinessLogic();
 builder.Services.AddFuelPriceWizardDataAccess(builder.Configuration.GetConnectionString("FuelPriceWizard_Dev")!);
+
+builder.Services.AddAutoMapper(
+    typeof(AddressDtoMappingProfile),
+    typeof(FuelTypeDtoMappingProfile),
+    typeof(GasStationDtoMappingProfile),
+    typeof(OpeningHoursDtoMappingProfile));
 
 var app = builder.Build();
 
