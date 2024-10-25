@@ -16,7 +16,9 @@ namespace FuelPriceWizard.DataCollector
     public class DataCollectorOrchestrator(ILogger<DataCollectorOrchestrator> orchestratorLogger,
         IConfiguration configuration,
         ILoggerFactory loggerFactory,
-        IFuelTypeRepository fuelTypeRepository) : IDataCollectorOrchestrator
+        IFuelTypeRepository fuelTypeRepository,
+        IGasStationRepository gasStationRepository,
+        IPriceRepository priceRepository) : IDataCollectorOrchestrator
     {
         public ILogger<DataCollectorOrchestrator> Logger { get; } = orchestratorLogger;
         public IConfiguration Configuration { get; } = configuration;
@@ -97,12 +99,28 @@ namespace FuelPriceWizard.DataCollector
         private Func<ILogger, IFuelPriceSourceService, Task> CollectMethod() =>
             async (logger, service) =>
             {
-                var prices = await service.FetchPricesByLocationAsync(48.287689M, 14.107360M);
+                var gasStations = await gasStationRepository.GetAllAsync();
 
-                foreach (var price in prices)
+                var tasks = new List<Task>();
+
+                //Fetch all existing gas stations and iterate to fetch prices
+                foreach (var gasStation in gasStations)
                 {
-                    logger.LogDebug("Price {FuelTypeDisplayValue} {FuelPrice}{Currency}", price.FuelType.DisplayValue, price.Value, price.Currency.Symbol);
+                    tasks.Add(Task.Run(async () =>
+                    {
+                        var prices = await service.FetchPricesByLocationAsync(Convert.ToDecimal(gasStation.Address!.Lat), Convert.ToDecimal(gasStation.Address!.Long));
+
+                        foreach (var price in prices)
+                        {
+                            price.GasStation = gasStation;
+                            await priceRepository.InsertAsync(price);
+
+                            logger.LogDebug("Price {FuelTypeDisplayValue} {FuelPrice}{Currency}", price.FuelType.DisplayValue, price.Value, price.Currency.Symbol);
+                        }
+                    }));
                 }
+
+                Task.WaitAll([.. tasks]);
             };
     }
 }

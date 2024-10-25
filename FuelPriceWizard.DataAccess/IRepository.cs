@@ -2,8 +2,8 @@
 {
     public interface IRepository<TDomainModel>
     {
-        public Task<IEnumerable<TDomainModel>> GetAllAsync();
-        public Task<TDomainModel?> GetByIdAsync(int id);
+        public Task<IEnumerable<TDomainModel>> GetAllAsync(params string[] includeItems);
+        public Task<TDomainModel?> GetByIdAsync(int id, params string[] includeItems);
 
         public Task<bool> DeleteAsync(TDomainModel model);
         public Task<bool> DeleteByIdAsync(int id);

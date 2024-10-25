@@ -25,9 +25,9 @@ namespace FuelPriceWizard.DataAccess
             );
 
             services.AddScoped<IPriceRepository, PriceRepository>();
-            services.AddScoped<IStationRepository, StationRepository>();
             services.AddScoped<IFuelTypeRepository, FuelTypeRepository>();
             services.AddScoped<ICurrencyRepository, CurrencyRepository>();
+            services.AddScoped<IGasStationRepository, GasStationRepository>();
 
             return services;
         }

@@ -7,9 +7,12 @@ namespace FuelPriceWizard.DataAccess.Implementation
 {
     public class CurrencyRepository : BaseRepository<Currency, CurrencyModel>, ICurrencyRepository
     {
+        public override string[] Includes => [];
+
         public CurrencyRepository(FuelPriceWizardDbContext context, IMapper mapper) : base(context, mapper)
         {
         }
+
 
         public async Task<CurrencyModel> GetByAbbreviationAsync(string abbreviation)
         {

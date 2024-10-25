@@ -1,6 +1,7 @@
 ﻿using FuelPriceWizard.DataAccess.Entities;
 using FuelPriceWizard.DataAccess.Entities.Base;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 namespace FuelPriceWizard.DataAccess
 {
@@ -52,7 +53,7 @@ namespace FuelPriceWizard.DataAccess
 
                 entity.Property(p => p.FetchedAt).HasColumnName("FetchedAt").IsRequired();
 
-                entity.Property(p => p.Value).HasColumnName("Value").HasPrecision(3).IsRequired();
+                entity.Property(p => p.Value).HasColumnName("Value").HasPrecision(4, 3).IsRequired();
 
                 entity.HasOne(p => p.Currency)
                     .WithOne(c => c.PriceReading)
@@ -73,9 +74,17 @@ namespace FuelPriceWizard.DataAccess
 
                 entity.Property(g => g.IsActive).HasColumnName("IsActive").HasDefaultValue(true);
 
-                entity.OwnsOne(g => g.Address).ToJson();
+                entity.Property(g => g.Address).HasConversion(
+                    // Convert ProductSpecifications to JSON for the database
+                    v => JsonSerializer.Serialize(v, null as JsonSerializerOptions),
+                    // Convert JSON from the database to ProductSpecifications
+                    v => JsonSerializer.Deserialize<Address>(v, null as JsonSerializerOptions)
+                );
 
-                entity.OwnsMany(g => g.OpeningHours).ToJson();
+                entity.Property(g => g.OpeningHours).HasConversion(
+                    v => JsonSerializer.Serialize(v, null as JsonSerializerOptions),
+                    v => JsonSerializer.Deserialize<List<OpeningHours>>(v, null as JsonSerializerOptions) ?? new()
+                );
 
                 entity.HasMany(g => g.PriceReadings)
                     .WithOne(p => p.GasStation);

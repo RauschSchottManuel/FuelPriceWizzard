@@ -11,6 +11,8 @@ namespace FuelPriceWizard.DataAccess.Implementation
         {
         }
 
+        public override string[] Includes => [];
+
         public async Task<FuelTypeModel> GetByDisplayValueAsync(string displayValue)
         {
             var entity = await this.Context.FuelTypes.FirstOrDefaultAsync(ft => ft.DisplayValue == displayValue);

@@ -11,6 +11,8 @@ namespace FuelPriceWizard.DataCollector.Tests
         private readonly Mock<IConfiguration> _configurationMock;
         private readonly Mock<ILoggerFactory> _loggerFactoryMock;
         private readonly Mock<IFuelTypeRepository> _fuelTypeRepositoryMock;
+        private readonly Mock<IGasStationRepository> _gasStationRepositoryMock;
+        private readonly Mock<IPriceRepository> _priceRepositoryMock;
 
         public DataCollectorOrchestratorTests()
         {
@@ -18,6 +20,8 @@ namespace FuelPriceWizard.DataCollector.Tests
             _configurationMock = new Mock<IConfiguration>();
             _loggerFactoryMock = new Mock<ILoggerFactory>();
             _fuelTypeRepositoryMock = new Mock<IFuelTypeRepository>();
+            _gasStationRepositoryMock = new Mock<IGasStationRepository>();
+            _priceRepositoryMock = new Mock<IPriceRepository>();
         }
 
         [Fact]
@@ -28,7 +32,9 @@ namespace FuelPriceWizard.DataCollector.Tests
                 _loggerMock.Object,
                 _configurationMock.Object,
                 _loggerFactoryMock.Object,
-                _fuelTypeRepositoryMock.Object);
+                _fuelTypeRepositoryMock.Object,
+                _gasStationRepositoryMock.Object,
+                _priceRepositoryMock.Object);
 
             // Assert
             Assert.NotNull(orchestrator);
@@ -37,6 +43,5 @@ namespace FuelPriceWizard.DataCollector.Tests
             Assert.NotNull(orchestrator.LoggerFactory);
             Assert.NotNull(orchestrator.FuelTypeRepository);
         }
-
     }
 }

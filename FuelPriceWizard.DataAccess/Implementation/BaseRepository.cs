@@ -5,13 +5,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FuelPriceWizard.DataAccess.Implementation
 {
-    public class BaseRepository<TDataModel, TDomainModel> : IRepository<TDomainModel> 
+    public abstract class BaseRepository<TDataModel, TDomainModel> : IRepository<TDomainModel>
         where TDataModel : BaseEntity 
         where TDomainModel : BaseModel
     {
         public FuelPriceWizardDbContext Context { get; set; }
         public IMapper Mapper { get; set; }
 
+        public abstract string[] Includes { get; }
 
         public BaseRepository(FuelPriceWizardDbContext context, IMapper mapper)
         {
@@ -19,16 +20,29 @@ namespace FuelPriceWizard.DataAccess.Implementation
             Mapper = mapper;
         }
 
-        public async Task<IEnumerable<TDomainModel>> GetAllAsync()
+        public async Task<IEnumerable<TDomainModel>> GetAllAsync(params string[] includeItems)
         {
-            var entities = await this.Context.Set<TDataModel>().ToListAsync();
+            var query = this.Context.Set<TDataModel>().AsQueryable();
 
+            foreach(var incl in Includes.Union(includeItems).Distinct())
+            {
+                query = query.Include(incl);
+            }
+
+            var entities = await query.ToListAsync();
             return this.Mapper.Map<IEnumerable<TDomainModel>>(entities);
         }
 
-        public async Task<TDomainModel?> GetByIdAsync(int id)
+        public async Task<TDomainModel?> GetByIdAsync(int id, params string[] includeItems)
         {
-            var entity = await this.Context.Set<TDataModel>().SingleOrDefaultAsync(e => e.Id == id);
+            var query = this.Context.Set<TDataModel>().AsQueryable();
+
+            foreach (var incl in Includes.Union(includeItems))
+            {
+                query = query.Include(incl);
+            }
+
+            var entity = await query.SingleOrDefaultAsync(e => e.Id == id);
 
             return this.Mapper.Map<TDomainModel>(entity);
         }

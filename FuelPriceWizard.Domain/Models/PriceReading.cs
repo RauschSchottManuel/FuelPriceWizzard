@@ -7,5 +7,6 @@
 
         public Currency Currency { get; set; } = new();
         public FuelType FuelType { get; set; } = new();
+        public GasStation GasStation { get; set; } = new();
     }
 }
