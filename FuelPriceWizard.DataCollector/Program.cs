@@ -1,4 +1,5 @@
 ﻿using FuelPriceWizard.DataAccess;
+using FuelPriceWizard.DataAccess.Constants;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -37,7 +38,7 @@ namespace FuelPriceWizard.DataCollector
             return new ServiceCollection()
                 .AddSingleton<IConfiguration>(config)
                 .AddLogging(builder => builder.AddSerilog(logger: logger, dispose: true))
-                .AddFuelPriceWizardDataAccess(config.GetConnectionString("FuelPriceWizard_Dev")!)
+                .AddFuelPriceWizardDataAccess(config.GetConnectionString(ConnectionStringConstants.FUEL_PRICE_WIZARD)!)
                 .AddScoped<IDataCollectorOrchestrator, DataCollectorOrchestrator>();
         }
     }

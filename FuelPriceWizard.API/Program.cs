@@ -1,6 +1,7 @@
 using FuelPriceWizard.API.DTOs.Mapping;
 using FuelPriceWizard.BusinessLogic;
 using FuelPriceWizard.DataAccess;
+using FuelPriceWizard.DataAccess.Constants;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,7 +18,7 @@ builder.Host.UseSerilog((context, configuration) =>
     configuration.ReadFrom.Configuration(context.Configuration));
 
 builder.Services.AddFuelPriceWizardBusinessLogic();
-builder.Services.AddFuelPriceWizardDataAccess(builder.Configuration.GetConnectionString("FuelPriceWizard_Dev")!);
+builder.Services.AddFuelPriceWizardDataAccess(builder.Configuration.GetConnectionString(ConnectionStringConstants.FUEL_PRICE_WIZARD)!);
 
 builder.Services.AddAutoMapper(
     typeof(AddressDtoMappingProfile),

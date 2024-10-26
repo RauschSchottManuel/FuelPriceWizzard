@@ -14,7 +14,7 @@ namespace FuelPriceWizard.DataAccess.Implementation
 
         public abstract string[] Includes { get; }
 
-        public BaseRepository(FuelPriceWizardDbContext context, IMapper mapper)
+        protected BaseRepository(FuelPriceWizardDbContext context, IMapper mapper)
         {
             Context = context;
             Mapper = mapper;

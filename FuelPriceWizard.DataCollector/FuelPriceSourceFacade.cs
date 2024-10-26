@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using FuelPriceWizard.BusinessLogic.Modules.Exceptions;
+using FuelPriceWizard.DataAccess.Constants;
 
 namespace FuelPriceWizard.DataCollector
 {
@@ -36,7 +37,7 @@ namespace FuelPriceWizard.DataCollector
             var serviceCollection = new ServiceCollection();
             serviceCollection.AddSingleton<IConfiguration>(assemblyConfig)
                 .AddLogging(builder => builder.AddSerilog(logger: logger, dispose: true))
-                .AddFuelPriceWizardDataAccess(assemblyConfig.GetConnectionString("FuelPriceWizard_Dev")!)
+                .AddFuelPriceWizardDataAccess(assemblyConfig.GetConnectionString(ConnectionStringConstants.FUEL_PRICE_WIZARD)!)
                 .AddHttpClient()
                 .AddScoped<IFuelPriceSourceService, T>();
 
