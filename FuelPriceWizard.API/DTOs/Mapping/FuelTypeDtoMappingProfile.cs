@@ -8,7 +8,8 @@ namespace FuelPriceWizard.API.DTOs.Mapping
         public FuelTypeDtoMappingProfile()
         {
             this.CreateMap<FuelType, FuelTypeDto>()
-                .ReverseMap();
+                .ReverseMap()
+                .ForMember(m => m.IsActive, o => o.MapFrom(m => true));
         }
     }
 }

@@ -41,7 +41,8 @@ namespace FuelPriceWizard.API.Controllers
 
             if(gasStation is null)
             {
-                this.NotFound();
+                this.logger.LogWarning("No gas station found with id {Id}!", id);
+                return this.NotFound();
             }
 
             return this.Ok(gasStation);
@@ -56,7 +57,8 @@ namespace FuelPriceWizard.API.Controllers
         {
             if(!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                this.logger.LogError("Invalid gas station provided: {GasStation}!", gasStation);
+                return this.BadRequest(ModelState);
             }
 
             var insertedStation = await this.gasStationRepository.InsertAsync(this.mapper.Map<GasStation>(gasStation));
