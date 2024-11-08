@@ -64,6 +64,8 @@ namespace FuelPriceWizard.BusinessLogic
                 };
             }
 
+            //TODO: replace "JIT-fetching" from db with stored/cached dictionary
+            //to avoid exception of multiple queries by different threads on the same dbcontext
             return await FuelTypeRepository.GetByDisplayValueAsync(typeToFetch.ToString());
         }
 

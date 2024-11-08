@@ -1,6 +1,6 @@
 ﻿namespace FuelPriceWizard.API.DTOs
 {
-    public class OpeningHoursDto
+    public class OpeningHoursDto : BaseDto
     {
         public DayOfWeek Day { get; set; }
         public TimeOnly From { get; set; }

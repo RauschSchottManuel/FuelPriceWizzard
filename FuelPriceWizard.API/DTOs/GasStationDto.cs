@@ -1,6 +1,6 @@
 ﻿namespace FuelPriceWizard.API.DTOs
 {
-    public class GasStationDto
+    public class GasStationDto : BaseDto
     {
         public string Designation { get; set; } = string.Empty;
         public AddressDto Address { get; set; } = new();

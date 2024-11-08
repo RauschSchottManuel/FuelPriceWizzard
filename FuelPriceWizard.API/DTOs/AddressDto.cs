@@ -2,7 +2,7 @@
 
 namespace FuelPriceWizard.API.DTOs
 {
-    public class AddressDto
+    public class AddressDto : BaseDto
     {
         public string Street { get; set; } = string.Empty;
         public string Zip { get; set; } = string.Empty;

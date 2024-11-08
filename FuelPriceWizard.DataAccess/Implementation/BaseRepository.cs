@@ -35,14 +35,7 @@ namespace FuelPriceWizard.DataAccess.Implementation
 
         public async Task<TDomainModel?> GetByIdAsync(int id, params string[] includeItems)
         {
-            var query = this.Context.Set<TDataModel>().AsQueryable();
-
-            foreach (var incl in Includes.Union(includeItems))
-            {
-                query = query.Include(incl);
-            }
-
-            var entity = await query.SingleOrDefaultAsync(e => e.Id == id);
+            var entity = await ExecuteGetByIdAsync(id, includeItems);
 
             return this.Mapper.Map<TDomainModel>(entity);
         }
@@ -63,24 +56,41 @@ namespace FuelPriceWizard.DataAccess.Implementation
             return rowsAffected > 0;
         }
 
-        public async Task<TDomainModel> UpdateAsync(TDomainModel model)
+        public async Task<TDomainModel> UpdateAsync(int id, TDomainModel model)
         {
             var entity = this.Mapper.Map<TDataModel>(model);
+            entity.Id = id;
 
-            var result = this.Context.Update(entity);
+            this.Context.Update(entity);
             await this.Context.SaveChangesAsync();
 
-            return Mapper.Map<TDomainModel>(result);
+            return Mapper.Map<TDomainModel>(entity);
         }
 
         public async Task<TDomainModel> InsertAsync(TDomainModel model)
         {
             var entity = this.Mapper.Map<TDataModel>(model);
 
-            var result = this.Context.Set<TDataModel>().Add(entity);
+            await this.Context.Set<TDataModel>().AddAsync(entity);
             await this.Context.SaveChangesAsync();
 
-            return Mapper.Map<TDomainModel>(result);
+            return Mapper.Map<TDomainModel>(entity);
         }
+
+        #region ExecuteMethods
+
+        private async Task<TDataModel> ExecuteGetByIdAsync(int id, params string[] includeItems)
+        {
+            var query = this.Context.Set<TDataModel>().AsQueryable();
+
+            foreach (var incl in Includes.Union(includeItems))
+            {
+                query = query.Include(incl);
+            }
+
+            return await query.SingleOrDefaultAsync(e => e.Id == id);
+        }
+
+        #endregion
     }
 }

@@ -68,5 +68,33 @@ namespace FuelPriceWizard.API.Controllers
             return this.Created(resourceUri, insertedStation);
         }
 
+        [HttpPut("edit/{id}")]
+        [Consumes(MediaTypeNames.Application.Json)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [Produces(MediaTypeNames.Application.Json)]
+        public async Task<ActionResult<GasStationDto>> Update(int id, [FromBody] GasStationDto gasStation)
+        {
+            if (!ModelState.IsValid)
+            {
+                this.logger.LogError("Invalid gas station provided: {GasStation}!", gasStation);
+                return this.BadRequest(ModelState);
+            }
+
+            var updatedGasStation = await this.gasStationRepository.UpdateAsync(id, this.mapper.Map<GasStation>(gasStation));
+
+            return this.Ok(updatedGasStation);
+        }
+
+        [HttpDelete("delete/{id}")]
+        [Consumes(MediaTypeNames.Application.Json)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        public async Task<ActionResult<GasStationDto>> Delete(int id)
+        {
+            var result = await this.gasStationRepository.DeleteByIdAsync(id);
+
+            return this.NoContent();
+        }
+
     }
 }

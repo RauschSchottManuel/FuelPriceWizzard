@@ -87,7 +87,7 @@ namespace EControlCollectorService
                 var prices = requestedStation.Prices.Select(async p => new PriceReading
                 {
                     Value = p.Amount,
-                    FuelType = await MapToFuelTypeAsync(p.FuelType),
+                    FuelType = MapToFuelTypeAsync(p.FuelType).Result,
                     Currency = await GetCurrencyObjectAsync(),
                 });
 
