@@ -13,6 +13,8 @@ namespace FuelPriceWizard.DataCollector
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Major Code Smell", "S3885:\"Assembly.Load\" should be used", Justification = "<Pending>")]
         public static List<IFuelPriceSourceFacade> GetFuelPriceSourceServices(IConfiguration config, ILogger<FuelPriceSourceServiceFactory> logger)
         {
+            var baseConfigPath = config.GetValue<bool>("UseExternalBaseConfigPath") ? $"{config.GetValue<string?>("ExternalBaseConfigPath")}/" : null;
+
             var result = new List<IFuelPriceSourceFacade>();
 
             var configSections = config.GetSection("ImplementationAssemblies")
@@ -36,8 +38,9 @@ namespace FuelPriceWizard.DataCollector
 
                 try
                 {
+                    var assemblyPath = $"{baseConfigPath ?? string.Empty}{configSection.FilePath}";
 
-                    var assembly = Assembly.LoadFrom(configSection.FilePath);
+                    var assembly = Assembly.LoadFrom(assemblyPath);
                     var type = assembly.GetType(configSection.Type);
 
                     if (type is null)

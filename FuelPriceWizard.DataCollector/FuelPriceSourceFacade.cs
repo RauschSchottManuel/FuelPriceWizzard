@@ -17,6 +17,8 @@ namespace FuelPriceWizard.DataCollector
 
         public FuelPriceSourceFacade(IConfiguration config)
         {
+            var baseConfigPath = config.GetValue<bool>("UseExternalBaseConfigPath") ? $"{config.GetValue<string?>("ExternalBaseConfigPath")}/" : null;
+
             var assemblySections = config.GetSection("ImplementationAssemblies")
                 .Get<List<AssemblyDefinition>>() ?? [];
 
@@ -28,7 +30,7 @@ namespace FuelPriceWizard.DataCollector
             var assemblyConfig = new ConfigurationBuilder()
                 .AddConfiguration(config)
                 .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile($"appsettings.{assemblyName.Split('.')[^1]}.json", optional: true, reloadOnChange: true)
+                .AddJsonFile($"{baseConfigPath ?? string.Empty}appsettings.{assemblyName.Split('.')[^1]}.json", optional: true, reloadOnChange: true)
                 .Build();
 
             var logger = new LoggerConfiguration().ReadFrom.Configuration(assemblyConfig)

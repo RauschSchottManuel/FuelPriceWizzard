@@ -1,0 +1,19 @@
+services:
+  datacollector:
+    build:
+      context: ..
+      dockerfile: ./FuelPriceWizard.DataCollector/Dockerfile
+    image: fuelpricewizard/datacollector:latest  # Set the image name and optional tag
+    container_name: fuelpricewizard-datacollector  # Set a custom container name
+    volumes:
+      # Bind the config folder containing appsettings.json and plugins
+      - fuelpricewizard-datacollector:/app/config:ro
+    environment:
+      - DOTNET_ENVIRONMENT=Production
+      - APP_CONFIG_PATH=/app/config  # Custom environment variable
+    working_dir: /app
+    command: ["dotnet", "/app/FuelPriceWizard.DataCollector.dll"]
+
+volumes:
+  fuelpricewizard-datacollector:
+    external: true
