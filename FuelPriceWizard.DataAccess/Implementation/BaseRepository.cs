@@ -79,7 +79,7 @@ namespace FuelPriceWizard.DataAccess.Implementation
 
         #region ExecuteMethods
 
-        private async Task<TDataModel> ExecuteGetByIdAsync(int id, params string[] includeItems)
+        private async Task<TDataModel?> ExecuteGetByIdAsync(int id, params string[] includeItems)
         {
             var query = this.Context.Set<TDataModel>().AsQueryable();
 
