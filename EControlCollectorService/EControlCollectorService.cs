@@ -87,7 +87,7 @@ namespace EControlCollectorService
                 var prices = requestedStation.Prices.Select(p => new PriceReading
                 {
                     Value = p.Amount,
-                    FuelType = MapToFuelTypeAsync(p.FuelType).Result,
+                    FuelType = this.FuelTypeObjectMapping.GetValueOrDefault(Enum.Parse<Enums.FuelType>(p.FuelType)) ?? new(),
                     Currency = this.CurrencyObject,
                 });
 

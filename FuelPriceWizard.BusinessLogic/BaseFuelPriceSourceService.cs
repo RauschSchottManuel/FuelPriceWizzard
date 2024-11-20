@@ -39,6 +39,8 @@ namespace FuelPriceWizard.BusinessLogic
         /// </summary>
         public abstract Dictionary<string, Enums.FuelType> FuelTypeMapping { get; }
 
+        public required Dictionary<Enums.FuelType, FuelType> FuelTypeObjectMapping { get; set; }
+
         /// <summary>
         /// Defines the default currency for the price value.
         /// </summary>
@@ -59,29 +61,38 @@ namespace FuelPriceWizard.BusinessLogic
         public virtual async Task Setup()
         {
            await this.FetchCurrencyObjectAsync();
+           await this.FetchFuelTypeOptionMappingAsync();
         }
 
-        protected async Task<FuelType> MapToFuelTypeAsync(string? value)
-        {
-            var mappingExists = FuelTypeMapping.TryGetValue(value ?? string.Empty, out var typeToFetch);
+        //TODO: REMOVE CODE
+        //protected async Task<FuelType> MapToFuelTypeAsync(string? value)
+        //{
+        //    var mappingExists = FuelTypeMapping.TryGetValue(value ?? string.Empty, out var typeToFetch);
 
-            if (!mappingExists)
-            {
-                this.Logger.LogError("No FuelTypeMapping found for value {FuelTypeValue}", value);
-                return new FuelType
-                {
-                    DisplayValue = value ?? string.Empty,
-                };
-            }
+        //    if (!mappingExists)
+        //    {
+        //        this.Logger.LogError("No FuelTypeMapping found for value {FuelTypeValue}", value);
+        //        return new FuelType
+        //        {
+        //            DisplayValue = value ?? string.Empty,
+        //        };
+        //    }
 
-            //TODO: replace "JIT-fetching" from db with stored/cached dictionary
-            //to avoid exception of multiple queries by different threads on the same dbcontext
-            return await FuelTypeRepository.GetByDisplayValueAsync(typeToFetch.ToString());
-        }
+        //    //TODO: replace "JIT-fetching" from db with stored/cached dictionary
+        //    //to avoid exception of multiple queries by different threads on the same dbcontext
+        //    return await FuelTypeRepository.GetByDisplayValueAsync(typeToFetch.ToString());
+        //}
 
         protected string MapFromFuelType(Enums.FuelType fuelType)
         {
             return FuelTypeMapping.FirstOrDefault(e => e.Value == fuelType).Key;
+        }
+
+        protected async Task FetchFuelTypeOptionMappingAsync()
+        {
+            var fuelTypes = await FuelTypeRepository.GetAllAsync();
+
+            FuelTypeObjectMapping = fuelTypes.ToDictionary(t => Enum.Parse<Enums.FuelType>(t.DisplayValue), t => t);
         }
 
         protected async Task FetchCurrencyObjectAsync()
