@@ -16,6 +16,11 @@ namespace FuelPriceWizard.BusinessLogic
         IConfigurationSection GetFetchSettingsSection();
 
         /// <summary>
+        /// The method <c>Setup</c> is used for additional setup of the collector like initializing variables.
+        /// </summary>
+        Task Setup();
+
+        /// <summary>
         /// The method <c>FetchPricesByLocation</c> returns an <see cref="IEnumerable{T}"/> where T is of type <see cref="PriceReading"/>
         /// that contains all price readings for the specified gas station located at given latitude/longitude.
         /// </summary>

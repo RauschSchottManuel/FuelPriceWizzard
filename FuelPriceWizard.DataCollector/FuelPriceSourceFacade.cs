@@ -47,6 +47,8 @@ namespace FuelPriceWizard.DataCollector
             service = serviceProvider.GetService<IFuelPriceSourceService>()!;
         }
 
+        public async Task Setup() => await service.Setup();
+
         public async Task<IEnumerable<PriceReading>> FetchPricesByLocationAsync(decimal lat, decimal lon, bool includeClosed = true)
         {
             return await service.FetchPricesByLocationAsync(lat, lon, includeClosed);

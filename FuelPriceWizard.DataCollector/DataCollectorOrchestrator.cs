@@ -41,6 +41,8 @@ namespace FuelPriceWizard.DataCollector
 
                 collectorTasks.Add(task);
 
+                service.Setup();
+
                 this.Logger.LogInformation("Finished creating task for instance {ServiceName}", service.GetType().GetGenericArguments()[0]);
             }
 

@@ -44,12 +44,22 @@ namespace FuelPriceWizard.BusinessLogic
         /// </summary>
         public abstract Enums.Currency Currency { get; }
 
+        public required Currency CurrencyObject { get; set; }
+
         /// <summary>
         /// The method <c>GetFetchSettingsSection</c> returns the specific <c>FetchSettings</c> configuration section 
         /// </summary>
         /// <returns>An object of type <see cref="IConfigurationSection"/></returns>
         public IConfigurationSection GetFetchSettingsSection() =>
-            this.Configuration.GetSection("FetchSettings");       
+            this.Configuration.GetSection("FetchSettings");
+
+        /// <summary>
+        /// The method <c>Setup</c> is used for additional setup of the collector like initializing variables.
+        /// </summary>
+        public virtual async Task Setup()
+        {
+           await this.FetchCurrencyObjectAsync();
+        }
 
         protected async Task<FuelType> MapToFuelTypeAsync(string? value)
         {
@@ -74,7 +84,9 @@ namespace FuelPriceWizard.BusinessLogic
             return FuelTypeMapping.FirstOrDefault(e => e.Value == fuelType).Key;
         }
 
-        protected async Task<Currency> GetCurrencyObjectAsync() =>
-            await this.CurrencyRepository.GetByAbbreviationAsync(this.Currency.ToString());
+        protected async Task FetchCurrencyObjectAsync()
+        {
+            this.CurrencyObject = await this.CurrencyRepository.GetByAbbreviationAsync(this.Currency.ToString());
+        }
     }
 }

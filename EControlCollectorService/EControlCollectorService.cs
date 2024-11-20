@@ -84,15 +84,16 @@ namespace EControlCollectorService
                     return [];
                 }
 
-                var prices = requestedStation.Prices.Select(async p => new PriceReading
+                var prices = requestedStation.Prices.Select(p => new PriceReading
                 {
                     Value = p.Amount,
                     FuelType = MapToFuelTypeAsync(p.FuelType).Result,
-                    Currency = await GetCurrencyObjectAsync(),
+                    Currency = this.CurrencyObject,
                 });
 
                 this.Logger.LogInformation("Completed collecting prices!");
-                return await Task.WhenAll(prices.ToList());
+                return prices.ToList();
+                //return await Task.WhenAll(prices.ToList());
             }
             catch (Exception ex)
             {
