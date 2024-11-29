@@ -20,6 +20,7 @@ namespace FuelPriceWizard.DataCollector
         IGasStationRepository gasStationRepository,
         IPriceRepository priceRepository) : IDataCollectorOrchestrator
     {
+        private object _insertLock = new object();
         public ILogger<DataCollectorOrchestrator> Logger { get; } = orchestratorLogger;
         public IConfiguration Configuration { get; } = configuration;
         public ILoggerFactory LoggerFactory { get; } = loggerFactory;
@@ -101,7 +102,9 @@ namespace FuelPriceWizard.DataCollector
         private Func<ILogger, IFuelPriceSourceService, Task> CollectMethod() =>
             async (logger, service) =>
             {
-                var gasStations = await gasStationRepository.GetAllAsync();
+                var gasStations = (await gasStationRepository.GetAllAsync())
+                                    .Where(g => g.IsActive)
+                                    .ToList();
 
                 var tasks = new List<Task>();
 
@@ -114,10 +117,16 @@ namespace FuelPriceWizard.DataCollector
 
                         foreach (var price in prices)
                         {
-                            price.GasStation = gasStation;
-                            await priceRepository.InsertAsync(price);
+                            price.GasStationId = gasStation.Id;
+                            lock (_insertLock)
+                            {
+                                var inserted = priceRepository.InsertAsync(price).Result;
+                                //TODO: add refs to currency, fueltype and gasstation to result of insert and log result
+                                //logger.LogDebug("Price {FuelTypeDisplayValue} {FuelPrice}{Currency}", price.FuelType.DisplayValue, price.Value, price.Currency.Symbol);
+                            }
 
-                            logger.LogDebug("Price {FuelTypeDisplayValue} {FuelPrice}{Currency}", price.FuelType.DisplayValue, price.Value, price.Currency.Symbol);
+                            //TODO: Delete eventually
+                            logger.LogDebug("Price {FuelTypeDisplayValue} {FuelPrice} {Currency}", price.FuelTypeId, price.Value, price.CurrencyId);
                         }
                     }));
                 }
