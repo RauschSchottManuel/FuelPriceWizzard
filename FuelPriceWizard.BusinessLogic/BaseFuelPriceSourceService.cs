@@ -44,7 +44,7 @@ namespace FuelPriceWizard.BusinessLogic
         /// <summary>
         /// Caches FuelTypes stored in the database.
         /// </summary>
-        public Cashed<FuelType> CashedFuelTypes { get; set; }
+        public required Cashed<FuelType> CashedFuelTypes { get; set; }
 
         /// <summary>
         /// Defines the default currency for the price value.
@@ -55,7 +55,7 @@ namespace FuelPriceWizard.BusinessLogic
         /// <summary>
         /// Caches Currencies stored in the database.
         /// </summary>
-        public Cashed<Currency> CashedCurrencies { get; set; }
+        public required Cashed<Currency> CashedCurrencies { get; set; }
 
 
         /// <summary>
@@ -68,7 +68,9 @@ namespace FuelPriceWizard.BusinessLogic
         /// <summary>
         /// The method <c>Setup</c> is used for additional setup of the collector like initializing variables.
         /// </summary>
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         public virtual async Task Setup()
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
             CashedCurrencies = new Cashed<Currency>(DefaultCacheValidityTimeSpan, () =>
             {

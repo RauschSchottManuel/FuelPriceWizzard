@@ -20,7 +20,7 @@ namespace FuelPriceWizard.DataCollector
         IGasStationRepository gasStationRepository,
         IPriceRepository priceRepository) : IDataCollectorOrchestrator
     {
-        private object _insertLock = new object();
+        private readonly object _insertLock = new object();
         public ILogger<DataCollectorOrchestrator> Logger { get; } = orchestratorLogger;
         public IConfiguration Configuration { get; } = configuration;
         public ILoggerFactory LoggerFactory { get; } = loggerFactory;
@@ -120,6 +120,7 @@ namespace FuelPriceWizard.DataCollector
                             price.GasStationId = gasStation.Id;
                             lock (_insertLock)
                             {
+                                price.FetchedAt = DateTime.UtcNow;
                                 var inserted = priceRepository.InsertAsync(price).Result;
                                 //TODO: add refs to currency, fueltype and gasstation to result of insert and log result
                                 //logger.LogDebug("Price {FuelTypeDisplayValue} {FuelPrice}{Currency}", price.FuelType.DisplayValue, price.Value, price.Currency.Symbol);

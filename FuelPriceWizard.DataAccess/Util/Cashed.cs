@@ -6,7 +6,7 @@
     /// <typeparam name="T">Type of stored data</typeparam>
     public class Cashed<T>
     {
-        private object _lock = new object();
+        private readonly object _lock = new object();
         protected IEnumerable<T> Data { get; set; }
         protected TimeSpan ValidTimeSpan { get; set; }
         protected Func<IEnumerable<T>> FetchData { get; set; }
