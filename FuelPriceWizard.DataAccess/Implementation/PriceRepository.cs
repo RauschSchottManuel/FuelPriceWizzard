@@ -11,6 +11,5 @@ namespace FuelPriceWizard.DataAccess.Implementation
         public PriceRepository(FuelPriceWizardDbContext context, IMapper mapper) : base(context, mapper)
         {
         }
-
     }
 }

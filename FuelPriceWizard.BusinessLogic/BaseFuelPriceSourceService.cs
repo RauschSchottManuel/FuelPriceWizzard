@@ -96,7 +96,6 @@ namespace FuelPriceWizard.BusinessLogic
                 };
             }
 
-            //return await FuelTypeRepository.GetByDisplayValueAsync(typeToFetch.ToString());
             return this.CashedFuelTypes.Get().FirstOrDefault(e => e.DisplayValue == typeToFetch.ToString())
                 ?? new FuelType()
                 {
