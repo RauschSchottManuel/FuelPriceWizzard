@@ -22,7 +22,7 @@ namespace FuelPriceWizard.DataAccess.Implementation
 
         public async Task<IEnumerable<TDomainModel>> GetAllAsync(params string[] includeItems)
         {
-            var query = this.Context.Set<TDataModel>().AsQueryable();
+            var query = this.Context.Set<TDataModel>().AsNoTracking().AsQueryable();
 
             foreach(var incl in Includes.Union(includeItems).Distinct())
             {

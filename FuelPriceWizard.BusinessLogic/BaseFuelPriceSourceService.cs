@@ -1,4 +1,5 @@
 ﻿using FuelPriceWizard.DataAccess;
+using FuelPriceWizard.DataAccess.Util;
 using FuelPriceWizard.Domain.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -39,12 +40,23 @@ namespace FuelPriceWizard.BusinessLogic
         /// </summary>
         public abstract Dictionary<string, Enums.FuelType> FuelTypeMapping { get; }
 
+        protected virtual TimeSpan DefaultCacheValidityTimeSpan { get; set; } = new TimeSpan(2, 0, 0);
+        /// <summary>
+        /// Caches FuelTypes stored in the database.
+        /// </summary>
+        public required Cashed<FuelType> CashedFuelTypes { get; set; }
+
         /// <summary>
         /// Defines the default currency for the price value.
         /// </summary>
         public abstract Enums.Currency Currency { get; }
+        public Currency? CurrencyObject => CashedCurrencies.Get().FirstOrDefault(c => c.Abbreviation == Currency.ToString());
 
-        public required Currency CurrencyObject { get; set; }
+        /// <summary>
+        /// Caches Currencies stored in the database.
+        /// </summary>
+        public required Cashed<Currency> CashedCurrencies { get; set; }
+
 
         /// <summary>
         /// The method <c>GetFetchSettingsSection</c> returns the specific <c>FetchSettings</c> configuration section 
@@ -56,12 +68,22 @@ namespace FuelPriceWizard.BusinessLogic
         /// <summary>
         /// The method <c>Setup</c> is used for additional setup of the collector like initializing variables.
         /// </summary>
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         public virtual async Task Setup()
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
-           await this.FetchCurrencyObjectAsync();
+            CashedCurrencies = new Cashed<Currency>(DefaultCacheValidityTimeSpan, () =>
+            {
+                return this.CurrencyRepository.GetAllAsync().Result;
+            });
+
+            CashedFuelTypes = new Cashed<FuelType>(DefaultCacheValidityTimeSpan, () =>
+            {
+                return this.FuelTypeRepository.GetAllAsync().Result;
+            });
         }
 
-        protected async Task<FuelType> MapToFuelTypeAsync(string? value)
+        protected FuelType MapToFuelType(string? value)
         {
             var mappingExists = FuelTypeMapping.TryGetValue(value ?? string.Empty, out var typeToFetch);
 
@@ -74,19 +96,16 @@ namespace FuelPriceWizard.BusinessLogic
                 };
             }
 
-            //TODO: replace "JIT-fetching" from db with stored/cached dictionary
-            //to avoid exception of multiple queries by different threads on the same dbcontext
-            return await FuelTypeRepository.GetByDisplayValueAsync(typeToFetch.ToString());
+            return this.CashedFuelTypes.Get().FirstOrDefault(e => e.DisplayValue == typeToFetch.ToString())
+                ?? new FuelType()
+                {
+                    DisplayValue = string.Empty
+                };
         }
 
         protected string MapFromFuelType(Enums.FuelType fuelType)
         {
             return FuelTypeMapping.FirstOrDefault(e => e.Value == fuelType).Key;
-        }
-
-        protected async Task FetchCurrencyObjectAsync()
-        {
-            this.CurrencyObject = await this.CurrencyRepository.GetByAbbreviationAsync(this.Currency.ToString());
         }
     }
 }

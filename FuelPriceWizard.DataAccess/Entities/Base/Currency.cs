@@ -6,7 +6,6 @@
         public string Abbreviation { get; set; } = string.Empty;
         public string Symbol { get; set; } = string.Empty;
 
-        public int PriceReadingId { get; set; }
-        public PriceReading? PriceReading { get; set; }
+        public List<PriceReading> PriceReadings { get; set; } = new();
     }
 }

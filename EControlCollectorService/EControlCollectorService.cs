@@ -84,11 +84,12 @@ namespace EControlCollectorService
                     return [];
                 }
 
+                var currencyId = this.CurrencyObject?.Id ?? 0;
                 var prices = requestedStation.Prices.Select(p => new PriceReading
                 {
                     Value = p.Amount,
-                    FuelType = MapToFuelTypeAsync(p.FuelType).Result,
-                    Currency = this.CurrencyObject,
+                    FuelTypeId = MapToFuelType(p.FuelType).Id,
+                    CurrencyId = currencyId
                 });
 
                 this.Logger.LogInformation("Completed collecting prices!");

@@ -9,6 +9,9 @@ namespace FuelPriceWizard.DataAccess.Entities.Mapping
         public PriceReadingMappingProfile()
         {
             this.CreateMap<Entity.PriceReading, DomainModel.PriceReading>()
+                .ForMember(p => p.Currency, options => options.AllowNull())
+                .ForMember(p => p.FuelType, options => options.AllowNull())
+                .ForMember(p => p.GasStation, options => options.AllowNull())
                 .ReverseMap();
         }
     }

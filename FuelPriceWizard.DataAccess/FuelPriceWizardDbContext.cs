@@ -56,8 +56,8 @@ namespace FuelPriceWizard.DataAccess
                 entity.Property(p => p.Value).HasColumnName("Value").HasPrecision(4, 3).IsRequired();
 
                 entity.HasOne(p => p.Currency)
-                    .WithOne(c => c.PriceReading)
-                    .HasForeignKey<PriceReading>(p => p.CurrencyId);
+                    .WithMany(c => c.PriceReadings)
+                    .HasForeignKey(p => p.CurrencyId);
 
                 entity.HasOne(p => p.FuelType)
                     .WithMany(f => f.PriceReadings)
