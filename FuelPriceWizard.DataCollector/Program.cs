@@ -28,6 +28,8 @@ namespace FuelPriceWizard.DataCollector
 
             orchestrator.StartTasks();
 
+            orchestrator.WatchForConfigurationChanges();
+
             await host.RunAsync();
         }
     }
