@@ -3,6 +3,7 @@ using FuelPriceWizard.DataAccess;
 using FuelPriceWizard.DataCollector.ConfigDefinitions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using System.Linq;
 
 namespace FuelPriceWizard.DataCollector
 {
@@ -97,6 +98,56 @@ namespace FuelPriceWizard.DataCollector
             {
                 _ = task.Start(this.CollectMethod());
             }
+        }
+
+        public async Task ReloadTasksAsync()
+        {
+            this.Logger.LogInformation("Reloading collector tasks due to configuration change ...");
+
+            var existingTasks = this.Tasks.ToDictionary(t => t.GetGenericType());
+
+            // Create a fresh set of tasks based on the updated configuration
+            var newTasks = this.CreateTasks().ToDictionary(t => t.GetGenericType());
+
+            // Determine which collectors have been removed
+            var removedTasks = existingTasks.Keys.Except(newTasks.Keys);
+            foreach (var taskName in removedTasks)
+            {
+                var task = existingTasks[taskName];
+                await task.StopAsync();
+                task.Dispose();
+                this.Logger.LogInformation("Stopped collector {Collector}", taskName);
+            }
+
+            // Start tasks that have been newly added
+            var addedTasks = newTasks.Keys.Except(existingTasks.Keys);
+            foreach (var taskName in addedTasks)
+            {
+                var task = newTasks[taskName];
+                _ = task.Start(this.CollectMethod());
+                this.Logger.LogInformation("Started collector {Collector}", taskName);
+            }
+
+            // Dispose tasks created during reload for collectors that already existed
+            var unchangedTasks = newTasks.Keys.Intersect(existingTasks.Keys);
+            foreach (var taskName in unchangedTasks)
+            {
+                newTasks[taskName].Dispose();
+            }
+
+            // Update the list of running tasks to include kept and newly added tasks
+            this.Tasks = existingTasks
+                .Where(kvp => unchangedTasks.Contains(kvp.Key))
+                .Select(kvp => kvp.Value)
+                .Concat(addedTasks.Select(a => newTasks[a]))
+                .ToList();
+        }
+
+        public void WatchForConfigurationChanges()
+        {
+            Microsoft.Extensions.Primitives.ChangeToken.OnChange(
+                () => this.Configuration.GetReloadToken(),
+                () => _ = this.ReloadTasksAsync());
         }
 
         private Func<ILogger, IFuelPriceSourceService, Task> CollectMethod() =>
