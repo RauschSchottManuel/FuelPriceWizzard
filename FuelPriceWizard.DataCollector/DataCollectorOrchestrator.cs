@@ -4,6 +4,7 @@ using FuelPriceWizard.DataCollector.ConfigDefinitions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System.Linq;
+using System.Threading;
 
 namespace FuelPriceWizard.DataCollector
 {
@@ -21,7 +22,7 @@ namespace FuelPriceWizard.DataCollector
         IGasStationRepository gasStationRepository,
         IPriceRepository priceRepository) : IDataCollectorOrchestrator
     {
-        private readonly object _insertLock = new object();
+        private readonly SemaphoreSlim _insertLock = new(1,1);
         public ILogger<DataCollectorOrchestrator> Logger { get; } = orchestratorLogger;
         public IConfiguration Configuration { get; } = configuration;
         public ILoggerFactory LoggerFactory { get; } = loggerFactory;
@@ -157,33 +158,47 @@ namespace FuelPriceWizard.DataCollector
                                     .Where(g => g.IsActive)
                                     .ToList();
 
-                var tasks = new List<Task>();
-
-                //Fetch all existing gas stations and iterate to fetch prices
-                foreach (var gasStation in gasStations)
+                var tasks = gasStations.Select(async gasStation =>
                 {
-                    tasks.Add(Task.Run(async () =>
+                    try
                     {
-                        var prices = await service.FetchPricesByLocationAsync(Convert.ToDecimal(gasStation.Address!.Lat), Convert.ToDecimal(gasStation.Address!.Long));
+                        var prices = await service.FetchPricesByLocationAsync(
+                            Convert.ToDecimal(gasStation.Address!.Lat),
+                            Convert.ToDecimal(gasStation.Address!.Long));
 
                         foreach (var price in prices)
                         {
                             price.GasStationId = gasStation.Id;
-                            lock (_insertLock)
+                            price.FetchedAt = DateTime.UtcNow;
+
+                            await _insertLock.WaitAsync();
+                            try
                             {
-                                price.FetchedAt = DateTime.UtcNow;
-                                var inserted = priceRepository.InsertAsync(price).Result;
-                                //TODO: add refs to currency, fueltype and gasstation to result of insert and log result
-                                //logger.LogDebug("Price {FuelTypeDisplayValue} {FuelPrice}{Currency}", price.FuelType.DisplayValue, price.Value, price.Currency.Symbol);
+                                await priceRepository.InsertAsync(price);
+                            }
+                            catch (Exception ex)
+                            {
+                                logger.LogError(ex, "Error inserting price for station {StationId}", gasStation.Id);
+                            }
+                            finally
+                            {
+                                _insertLock.Release();
                             }
 
-                            //TODO: Delete eventually
-                            logger.LogDebug("Price {FuelTypeDisplayValue} {FuelPrice} {Currency}", price.FuelTypeId, price.Value, price.CurrencyId);
+                            logger.LogDebug(
+                                "Price {FuelTypeDisplayValue} {FuelPrice} {Currency}",
+                                price.FuelTypeId,
+                                price.Value,
+                                price.CurrencyId);
                         }
-                    }));
-                }
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogError(ex, "Error fetching prices for station {StationId}", gasStation.Id);
+                    }
+                });
 
-                Task.WaitAll([.. tasks]);
+                await Task.WhenAll(tasks);
             };
     }
 }
