@@ -43,5 +43,31 @@ namespace FuelPriceWizard.DataCollector.Tests
             Assert.NotNull(orchestrator.LoggerFactory);
             Assert.NotNull(orchestrator.FuelTypeRepository);
         }
+
+        [Fact]
+        public void CreateTasks_ReturnsEmptyList_WhenNoImplementationAssembliesConfigured()
+        {
+            // Arrange: Use a real empty IConfiguration so GetValue<bool> extension methods work correctly
+            var emptyConfig = new ConfigurationBuilder().Build();
+
+            _loggerFactoryMock
+                .Setup(f => f.CreateLogger(It.IsAny<string>()))
+                .Returns(new Mock<ILogger>().Object);
+
+            var orchestrator = new DataCollectorOrchestrator(
+                _loggerMock.Object,
+                emptyConfig,
+                _loggerFactoryMock.Object,
+                _fuelTypeRepositoryMock.Object,
+                _gasStationRepositoryMock.Object,
+                _priceRepositoryMock.Object);
+
+            // Act
+            var tasks = orchestrator.CreateTasks();
+
+            // Assert
+            Assert.NotNull(tasks);
+            Assert.Empty(tasks);
+        }
     }
 }

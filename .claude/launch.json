@@ -1,0 +1,23 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "API",
+      "runtimeExecutable": "dotnet",
+      "runtimeArgs": ["run", "--project", "FuelPriceWizard.API/FuelPriceWizard.API.csproj"],
+      "port": 5175
+    },
+    {
+      "name": "Angular UI",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["start-angular.js", "serve"],
+      "port": 4200
+    },
+    {
+      "name": "DataCollector",
+      "runtimeExecutable": "dotnet",
+      "runtimeArgs": ["run", "--project", "FuelPriceWizard.DataCollector/FuelPriceWizard.DataCollector.csproj"],
+      "port": 0
+    }
+  ]
+}
