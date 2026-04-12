@@ -1,5 +1,6 @@
-﻿using AutoMapper;
+using AutoMapper;
 using FuelPriceWizard.API.DTOs;
+using FuelPriceWizard.API.Models;
 using FuelPriceWizard.DataAccess;
 using FuelPriceWizard.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -22,79 +23,96 @@ namespace FuelPriceWizard.API.Controllers
             this.gasStationRepository = gasStationRepository;
         }
 
+        /// <summary>Returns a paginated list of all gas stations.</summary>
+        /// <param name="page">Page number (1-based). Defaults to 1.</param>
+        /// <param name="pageSize">Number of items per page. Defaults to 20.</param>
         [HttpGet("all")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(PagedResult<GasStationDto>), StatusCodes.Status200OK)]
         [Produces(MediaTypeNames.Application.Json)]
-        public async Task<ActionResult<IEnumerable<GasStationDto>>> GetAll()
+        public async Task<ActionResult<PagedResult<GasStationDto>>> GetAll(
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 20)
         {
-            var gasStations = await this.gasStationRepository.GetAllAsync();
-            return this.Ok(this.mapper.Map<IEnumerable<GasStationDto>>(gasStations));
+            if (page < 1) page = 1;
+            if (pageSize < 1) pageSize = 20;
+
+            var allStations = (await gasStationRepository.GetAllAsync()).ToList();
+            var items = allStations
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            return Ok(new PagedResult<GasStationDto>
+            {
+                Items = mapper.Map<IEnumerable<GasStationDto>>(items),
+                TotalCount = allStations.Count,
+                Page = page,
+                PageSize = pageSize,
+            });
         }
 
+        /// <summary>Returns a gas station by its identifier.</summary>
         [HttpGet("{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(GasStationDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Produces(MediaTypeNames.Application.Json)]
         public async Task<ActionResult<GasStationDto>> GetById(int id)
         {
-            var gasStation = await this.gasStationRepository.GetByIdAsync(id);
+            var gasStation = await gasStationRepository.GetByIdAsync(id);
 
-            if(gasStation is null)
+            if (gasStation is null)
             {
-                this.logger.LogWarning("No gas station found with id {Id}!", id);
-                return this.NotFound();
+                logger.LogWarning("No gas station found with id {Id}!", id);
+                return NotFound();
             }
 
-            return this.Ok(gasStation);
+            return Ok(mapper.Map<GasStationDto>(gasStation));
         }
 
+        /// <summary>Creates a new gas station.</summary>
         [HttpPost("new")]
         [Consumes(MediaTypeNames.Application.Json)]
-        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(GasStationDto), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [Produces(MediaTypeNames.Application.Json)]
         public async Task<ActionResult<GasStationDto>> InsertNew([FromBody] GasStationDto gasStation)
         {
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                this.logger.LogError("Invalid gas station provided: {GasStation}!", gasStation);
-                return this.BadRequest(ModelState);
+                logger.LogError("Invalid gas station provided: {GasStation}!", gasStation);
+                return BadRequest(ModelState);
             }
 
-            var insertedStation = await this.gasStationRepository.InsertAsync(this.mapper.Map<GasStation>(gasStation));
-
-            var resourceUri = Url.Action(nameof(GetById), new {id = insertedStation.Id});
-
-            return this.Created(resourceUri, insertedStation);
+            var inserted = await gasStationRepository.InsertAsync(mapper.Map<GasStation>(gasStation));
+            var resourceUri = Url.Action(nameof(GetById), new { id = inserted.Id });
+            return Created(resourceUri, mapper.Map<GasStationDto>(inserted));
         }
 
+        /// <summary>Updates an existing gas station.</summary>
         [HttpPut("edit/{id}")]
         [Consumes(MediaTypeNames.Application.Json)]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(GasStationDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [Produces(MediaTypeNames.Application.Json)]
         public async Task<ActionResult<GasStationDto>> Update(int id, [FromBody] GasStationDto gasStation)
         {
             if (!ModelState.IsValid)
             {
-                this.logger.LogError("Invalid gas station provided: {GasStation}!", gasStation);
-                return this.BadRequest(ModelState);
+                logger.LogError("Invalid gas station provided: {GasStation}!", gasStation);
+                return BadRequest(ModelState);
             }
 
-            var updatedGasStation = await this.gasStationRepository.UpdateAsync(id, this.mapper.Map<GasStation>(gasStation));
-
-            return this.Ok(updatedGasStation);
+            var updated = await gasStationRepository.UpdateAsync(id, mapper.Map<GasStation>(gasStation));
+            return Ok(mapper.Map<GasStationDto>(updated));
         }
 
+        /// <summary>Deletes a gas station by its identifier.</summary>
         [HttpDelete("delete/{id}")]
-        [Consumes(MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        public async Task<ActionResult<GasStationDto>> Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var result = await this.gasStationRepository.DeleteByIdAsync(id);
-
-            return this.NoContent();
+            await gasStationRepository.DeleteByIdAsync(id);
+            return NoContent();
         }
-
     }
 }

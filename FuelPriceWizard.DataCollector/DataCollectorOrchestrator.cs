@@ -1,31 +1,24 @@
-﻿using FuelPriceWizard.BusinessLogic;
+using FuelPriceWizard.BusinessLogic;
 using FuelPriceWizard.DataAccess;
 using FuelPriceWizard.DataCollector.ConfigDefinitions;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System.Linq;
 
 namespace FuelPriceWizard.DataCollector
 {
     /// <summary>
     /// Handles all data collector task scheduling, creation and start/stop actions.
     /// </summary>
-    /// <param name="orchestratorLogger"></param>
-    /// <param name="configuration"></param>
-    /// <param name="loggerFactory"></param>
-    /// <param name="fuelTypeRepository"></param>
-    public class DataCollectorOrchestrator(ILogger<DataCollectorOrchestrator> orchestratorLogger,
+    public class DataCollectorOrchestrator(
+        ILogger<DataCollectorOrchestrator> orchestratorLogger,
         IConfiguration configuration,
         ILoggerFactory loggerFactory,
-        IFuelTypeRepository fuelTypeRepository,
-        IGasStationRepository gasStationRepository,
-        IPriceRepository priceRepository) : IDataCollectorOrchestrator
+        IServiceScopeFactory serviceScopeFactory) : IDataCollectorOrchestrator
     {
-        private readonly object _insertLock = new object();
         public ILogger<DataCollectorOrchestrator> Logger { get; } = orchestratorLogger;
         public IConfiguration Configuration { get; } = configuration;
         public ILoggerFactory LoggerFactory { get; } = loggerFactory;
-        public IFuelTypeRepository FuelTypeRepository { get; } = fuelTypeRepository;
         public IEnumerable<RepeatingTask<IFuelPriceSourceService>> Tasks { get; set; } = [];
 
         public IEnumerable<RepeatingTask<IFuelPriceSourceService>> CreateTasks()
@@ -80,6 +73,7 @@ namespace FuelPriceWizard.DataCollector
                 this.Logger.LogError("Invalid fetch interval specified! Skipping creation of task for instance {ServiceName}", serviceClassName);
                 return null;
             }
+
             var serviceLogger = this.LoggerFactory.CreateLogger(serviceClassName);
 
             this.Logger.LogInformation("Creating task for instance {ServiceName}", serviceClassName);
@@ -106,10 +100,8 @@ namespace FuelPriceWizard.DataCollector
 
             var existingTasks = this.Tasks.ToDictionary(t => t.GetGenericType());
 
-            // Create a fresh set of tasks based on the updated configuration
             var newTasks = this.CreateTasks().ToDictionary(t => t.GetGenericType());
 
-            // Determine which collectors have been removed
             var removedTasks = existingTasks.Keys.Except(newTasks.Keys);
             foreach (var taskName in removedTasks)
             {
@@ -119,7 +111,6 @@ namespace FuelPriceWizard.DataCollector
                 this.Logger.LogInformation("Stopped collector {Collector}", taskName);
             }
 
-            // Start tasks that have been newly added
             var addedTasks = newTasks.Keys.Except(existingTasks.Keys);
             foreach (var taskName in addedTasks)
             {
@@ -128,14 +119,12 @@ namespace FuelPriceWizard.DataCollector
                 this.Logger.LogInformation("Started collector {Collector}", taskName);
             }
 
-            // Dispose tasks created during reload for collectors that already existed
             var unchangedTasks = newTasks.Keys.Intersect(existingTasks.Keys);
             foreach (var taskName in unchangedTasks)
             {
                 newTasks[taskName].Dispose();
             }
 
-            // Update the list of running tasks to include kept and newly added tasks
             this.Tasks = existingTasks
                 .Where(kvp => unchangedTasks.Contains(kvp.Key))
                 .Select(kvp => kvp.Value)
@@ -153,37 +142,43 @@ namespace FuelPriceWizard.DataCollector
         private Func<ILogger, IFuelPriceSourceService, Task> CollectMethod() =>
             async (logger, service) =>
             {
+                // Each collection run gets its own scope so concurrent tasks never share a DbContext instance.
+                using var scope = serviceScopeFactory.CreateScope();
+                var gasStationRepository = scope.ServiceProvider.GetRequiredService<IGasStationRepository>();
+                var priceRepository = scope.ServiceProvider.GetRequiredService<IPriceRepository>();
+
                 var gasStations = (await gasStationRepository.GetAllAsync())
                                     .Where(g => g.IsActive)
                                     .ToList();
 
                 var tasks = new List<Task>();
 
-                //Fetch all existing gas stations and iterate to fetch prices
                 foreach (var gasStation in gasStations)
                 {
                     tasks.Add(Task.Run(async () =>
                     {
-                        var prices = await service.FetchPricesByLocationAsync(Convert.ToDecimal(gasStation.Address!.Lat), Convert.ToDecimal(gasStation.Address!.Long));
+                        var prices = await service.FetchPricesByLocationAsync(
+                            Convert.ToDecimal(gasStation.Address!.Lat),
+                            Convert.ToDecimal(gasStation.Address!.Long));
 
                         foreach (var price in prices)
                         {
                             price.GasStationId = gasStation.Id;
-                            lock (_insertLock)
-                            {
-                                price.FetchedAt = DateTime.UtcNow;
-                                var inserted = priceRepository.InsertAsync(price).Result;
-                                //TODO: add refs to currency, fueltype and gasstation to result of insert and log result
-                                //logger.LogDebug("Price {FuelTypeDisplayValue} {FuelPrice}{Currency}", price.FuelType.DisplayValue, price.Value, price.Currency.Symbol);
-                            }
+                            price.FetchedAt = DateTime.UtcNow;
 
-                            //TODO: Delete eventually
-                            logger.LogDebug("Price {FuelTypeDisplayValue} {FuelPrice} {Currency}", price.FuelTypeId, price.Value, price.CurrencyId);
+                            // Each insert uses the scope's priceRepository sequentially per gas station task,
+                            // which is safe because each Task.Run closure captures the same scope but accesses
+                            // it from a single logical thread per station.
+                            var inserted = await priceRepository.InsertAsync(price);
+
+                            logger.LogDebug(
+                                "Inserted price reading: Station={StationDesignation} FuelType={FuelTypeId} Value={Value} Currency={CurrencyId}",
+                                gasStation.Designation, inserted.FuelTypeId, inserted.Value, inserted.CurrencyId);
                         }
                     }));
                 }
 
-                Task.WaitAll([.. tasks]);
+                await Task.WhenAll(tasks);
             };
     }
 }

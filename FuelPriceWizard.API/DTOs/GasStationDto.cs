@@ -1,8 +1,13 @@
-﻿namespace FuelPriceWizard.API.DTOs
+using System.ComponentModel.DataAnnotations;
+
+namespace FuelPriceWizard.API.DTOs
 {
     public class GasStationDto : BaseDto
     {
+        [Required]
+        [MaxLength(200)]
         public string Designation { get; set; } = string.Empty;
+
         public AddressDto Address { get; set; } = new();
         public List<FuelTypeDto> FuelTypes { get; set; } = [];
         public List<OpeningHoursDto> OpeningHours { get; set; } = [];

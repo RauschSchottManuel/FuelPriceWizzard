@@ -1,4 +1,4 @@
-﻿using FuelPriceWizard.DataAccess.Entities.Mapping;
+using FuelPriceWizard.DataAccess.Entities.Mapping;
 using FuelPriceWizard.DataAccess.Implementation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -7,12 +7,16 @@ namespace FuelPriceWizard.DataAccess
 {
     public static class ServiceRegistrationHelper
     {
-        public static IServiceCollection AddFuelPriceWizardDataAccess(this IServiceCollection services, string connectionString)
+        public static IServiceCollection AddFuelPriceWizardDataAccess(this IServiceCollection services, string connectionString, bool isDevelopment = false)
         {
             services.AddDbContext<FuelPriceWizardDbContext>(o =>
             {
                 o.UseSqlServer(connectionString);
-                o.EnableDetailedErrors();
+                if (isDevelopment)
+                {
+                    o.EnableDetailedErrors();
+                    o.EnableSensitiveDataLogging();
+                }
             });
 
             services.AddAutoMapper(

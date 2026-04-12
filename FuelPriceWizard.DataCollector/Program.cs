@@ -55,9 +55,11 @@ namespace FuelPriceWizard.DataCollector
 
             using var logger = new LoggerConfiguration().ReadFrom.Configuration(config).CreateLogger();
 
+            var isDevelopment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development";
+
             services.AddSingleton<IConfiguration>(config)
                 .AddLogging(builder => builder.AddSerilog(logger: logger, dispose: true))
-                .AddFuelPriceWizardDataAccess(config.GetConnectionString(ConnectionStringConstants.FUEL_PRICE_WIZARD)!)
+                .AddFuelPriceWizardDataAccess(config.GetConnectionString(ConnectionStringConstants.FUEL_PRICE_WIZARD)!, isDevelopment)
                 .AddScoped<IDataCollectorOrchestrator, DataCollectorOrchestrator>();
 
             return services;

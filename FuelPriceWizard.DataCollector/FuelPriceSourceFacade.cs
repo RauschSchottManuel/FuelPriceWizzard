@@ -39,7 +39,8 @@ namespace FuelPriceWizard.DataCollector
             var serviceCollection = new ServiceCollection();
             serviceCollection.AddSingleton<IConfiguration>(assemblyConfig)
                 .AddLogging(builder => builder.AddSerilog(logger: logger, dispose: true))
-                .AddFuelPriceWizardDataAccess(assemblyConfig.GetConnectionString(ConnectionStringConstants.FUEL_PRICE_WIZARD)!)
+                .AddFuelPriceWizardDataAccess(assemblyConfig.GetConnectionString(ConnectionStringConstants.FUEL_PRICE_WIZARD)!,
+                    Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
                 .AddHttpClient()
                 .AddScoped<IFuelPriceSourceService, T>();
 

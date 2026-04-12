@@ -2,14 +2,18 @@ using System.ComponentModel.DataAnnotations;
 
 namespace FuelPriceWizard.API.DTOs
 {
-    public class FuelTypeDto : BaseDto
+    public class CurrencyDto : BaseDto
     {
         [Required]
         [MaxLength(100)]
-        public string DisplayValue { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
 
         [Required]
-        [MaxLength(20)]
+        [MaxLength(10)]
         public string Abbreviation { get; set; } = string.Empty;
+
+        [Required]
+        [MaxLength(5)]
+        public string Symbol { get; set; } = string.Empty;
     }
 }
