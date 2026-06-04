@@ -1,8 +1,12 @@
-﻿namespace FuelPriceWizard.Domain.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace FuelPriceWizard.Domain.Models
 {
     public class GasStation : BaseModel
     {
+        [Required, MaxLength(200)]
         public string Designation { get; set; } = string.Empty;
+
         public bool IsActive { get; set; }
         public Address? Address { get; set; }
         public List<FuelType> FuelTypes { get; set; } = new();

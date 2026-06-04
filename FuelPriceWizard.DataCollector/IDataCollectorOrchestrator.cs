@@ -1,13 +1,10 @@
-﻿using FuelPriceWizard.BusinessLogic;
-
 namespace FuelPriceWizard.DataCollector
 {
     public interface IDataCollectorOrchestrator
     {
-        public IEnumerable<RepeatingTask<IFuelPriceSourceService>> CreateTasks();
-        public void StartTasks();
-        public void StartTasks(IEnumerable<RepeatingTask<IFuelPriceSourceService>> tasks);
-        public Task ReloadTasksAsync();
-        public void WatchForConfigurationChanges();
+        Task StartAsync(CancellationToken cancellationToken = default);
+        Task StopAsync(CancellationToken cancellationToken = default);
+        Task ReloadTasksAsync();
+        void WatchForConfigurationChanges();
     }
 }

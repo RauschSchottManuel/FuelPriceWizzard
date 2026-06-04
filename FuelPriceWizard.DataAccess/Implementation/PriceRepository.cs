@@ -1,12 +1,14 @@
-﻿using AutoMapper;
+using AutoMapper;
 using FuelPriceWizard.DataAccess.Entities;
+using System.Linq.Expressions;
 using PriceModel = FuelPriceWizard.Domain.Models.PriceReading;
 
 namespace FuelPriceWizard.DataAccess.Implementation
 {
     public class PriceRepository : BaseRepository<PriceReading, PriceModel>, IPriceRepository
     {
-        public override string[] Includes => [ nameof(PriceReading.Currency) ];
+        protected override Expression<Func<PriceReading, object>>[] Includes =>
+            [p => p.Currency!];
 
         public PriceRepository(FuelPriceWizardDbContext context, IMapper mapper) : base(context, mapper)
         {

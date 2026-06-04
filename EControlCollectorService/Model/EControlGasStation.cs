@@ -10,6 +10,9 @@ namespace EControlCollectorService.Model
         [JsonPropertyName("name")]
         public string Name { get; set; } = string.Empty;
 
+        [JsonPropertyName("location")]
+        public EControlLocation? Location { get; set; }
+
         [JsonPropertyName("prices")]
         public IEnumerable<EControlPriceReading> Prices { get; set; } = [];
     }
