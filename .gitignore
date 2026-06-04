@@ -749,4 +749,12 @@ FodyWeavers.xsd
 # End of https://www.toptal.com/developers/gitignore/api/csharp,angular,visualstudio,visualstudiocode,aspnetcore
 
 ### Claude Code ###
-.claude/
+# Ignore all .claude contents by default, then selectively allow shared files.
+# Using .claude/* (not .claude/) so negation rules for subdirectories work.
+.claude/*
+.claude/worktrees/
+# Allow shared agent definitions to be versioned
+!.claude/agents/
+!.claude/agents/**
+# settings.json (shared project config) is allowed; settings.local.json is personal and stays ignored
+!.claude/settings.json
