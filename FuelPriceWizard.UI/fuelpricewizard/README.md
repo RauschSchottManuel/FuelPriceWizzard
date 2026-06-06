@@ -1,4 +1,6 @@
-# Fuelpricewizard
+# FuelPriceWizard - Angular App
+
+Map-based frontend for the FuelPriceWizard project. Displays gas stations and their fuel prices on an interactive OpenStreetMap powered by [ngx-leaflet](https://github.com/bluehalo/ngx-leaflet). Styled with [TailwindCSS](https://tailwindcss.com/).
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.2.3.
 
@@ -18,9 +20,9 @@ Run `ng build` to build the project. The build artifacts will be stored in the `
 
 Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
 
-## Running end-to-end tests
+## End-to-end tests
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+No end-to-end testing framework is currently configured. To add one, install a package that implements e2e capabilities (e.g. Cypress or Playwright) and run `ng e2e`.
 
 ## Further help
 
