@@ -1,0 +1,32 @@
+<h2 class="mb-2 text-lg font-semibold text-slate-800">Current prices</h2>
+
+@if (loading()) {
+  <p class="animate-pulse text-sm text-slate-500">Loading prices…</p>
+} @else if (rows().length === 0) {
+  <p class="text-sm text-slate-500">No prices available for this station.</p>
+} @else {
+  <table class="w-full text-sm">
+    <thead>
+      <tr class="border-b border-slate-200 text-left text-slate-500">
+        <th class="py-1.5 font-medium">Fuel</th>
+        <th class="py-1.5 text-right font-medium">Price</th>
+        <th class="py-1.5 text-right font-medium">As of</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of rows(); track row.reading.fuelTypeId) {
+        <tr class="border-b border-slate-100 last:border-0">
+          <td class="py-1.5 font-medium text-slate-700">
+            {{ row.fuelType?.displayValue ?? 'Fuel type ' + row.reading.fuelTypeId }}
+          </td>
+          <td class="py-1.5 text-right tabular-nums text-slate-800">
+            {{ row.reading.value | number: '1.3-3' }} {{ row.reading.currency.symbol }}
+          </td>
+          <td class="py-1.5 text-right text-slate-500">
+            {{ row.reading.fetchedAt | date: 'short' }}
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+}

@@ -1,5 +1,11 @@
 <div [style.width]="width()" [style.height]="height()">
   <div class="map-frame">
-    <div id="map" leaflet [leafletOptions]="options()"></div>
+    <div
+      id="map"
+      leaflet
+      [leafletOptions]="mapOptions()"
+      [leafletLayers]="markerLayers()"
+      [leafletFitBounds]="$any(fitBounds())"
+    ></div>
   </div>
 </div>

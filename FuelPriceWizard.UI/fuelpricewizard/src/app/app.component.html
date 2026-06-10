@@ -1,3 +1,17 @@
-<!-- <div style="display: flex; width: 100%; justify-content: center;"> -->
-<app-osm-map [width]="'35vw'" [height]="'25vh'" [centerLatLong]="centerLatLong"></app-osm-map>
-<!-- </div> -->
+<div class="min-h-screen bg-slate-100">
+  <header class="bg-slate-900 text-white shadow-md">
+    <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
+      <a routerLink="/stations" class="flex items-center gap-2 text-xl font-semibold">
+        <span aria-hidden="true">⛽</span>
+        <span>FuelPriceWizard</span>
+      </a>
+      <nav class="flex gap-4 text-sm">
+        <a routerLink="/stations" class="rounded px-3 py-1.5 hover:bg-slate-700">Stations</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-6xl px-4 py-6">
+    <router-outlet></router-outlet>
+  </main>
+</div>

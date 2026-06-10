@@ -1,0 +1,21 @@
+<table class="w-full text-sm">
+  <tbody>
+    @for (row of week(); track row.day) {
+      <tr class="border-b border-slate-100 last:border-0">
+        <td class="py-1.5 pr-4 font-medium text-slate-700">{{ row.day | dayOfWeek }}</td>
+        <td class="py-1.5 text-right text-slate-600">
+          @if (row.entries.length === 0) {
+            <span class="text-slate-400">Closed</span>
+          } @else {
+            @for (entry of row.entries; track entry.id; let last = $last) {
+              <span>{{ entry.from | timeOnly }}–{{ entry.to | timeOnly }}</span>
+              @if (!last) {
+                <span>, </span>
+              }
+            }
+          }
+        </td>
+      </tr>
+    }
+  </tbody>
+</table>

@@ -1,0 +1,47 @@
+<a routerLink="/stations" class="mb-4 inline-flex items-center gap-1 text-sm text-teal-700 hover:underline">
+  <span aria-hidden="true">←</span> Back to all stations
+</a>
+
+@if (station(); as station) {
+  <h1 class="mb-4 text-2xl font-semibold text-slate-800">{{ station.designation }}</h1>
+
+  <div class="grid gap-6 lg:grid-cols-2">
+    <section class="rounded-lg bg-white p-4 shadow-sm">
+      @if (marker(); as marker) {
+        <app-osm-map width="100%" height="40vh" [centerLatLong]="marker" [zoom]="15" />
+      }
+      <h2 class="mb-1 mt-3 text-lg font-semibold text-slate-800">Address</h2>
+      <p class="text-sm text-slate-600">
+        {{ station.address.street }}<br />
+        {{ station.address.zip }} {{ station.address.city }}, {{ station.address.country }}
+      </p>
+
+      <h2 class="mb-1 mt-4 text-lg font-semibold text-slate-800">Fuel types</h2>
+      <div class="flex flex-wrap gap-1.5">
+        @for (fuelType of station.fuelTypes; track fuelType.id) {
+          <span class="rounded bg-teal-50 px-2 py-1 text-xs font-medium text-teal-800">
+            {{ fuelType.displayValue }}
+          </span>
+        }
+      </div>
+
+      <h2 class="mb-1 mt-4 text-lg font-semibold text-slate-800">Opening hours</h2>
+      <app-opening-hours [hours]="station.openingHours" />
+    </section>
+
+    <div class="flex flex-col gap-6">
+      <section class="rounded-lg bg-white p-4 shadow-sm">
+        <app-current-prices [station]="station" />
+      </section>
+      <section class="rounded-lg bg-white p-4 shadow-sm">
+        <app-price-history-chart [station]="station" />
+      </section>
+    </div>
+  </div>
+} @else if (store.loading()) {
+  <p class="animate-pulse text-slate-500">Loading station…</p>
+} @else {
+  <div class="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-amber-800">
+    Station not found.
+  </div>
+}

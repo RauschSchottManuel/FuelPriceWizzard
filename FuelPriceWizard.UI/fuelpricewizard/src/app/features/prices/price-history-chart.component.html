@@ -1,0 +1,50 @@
+<div class="mb-3 flex flex-wrap items-center justify-between gap-3">
+  <h2 class="text-lg font-semibold text-slate-800">Price history</h2>
+  <div class="flex flex-wrap gap-2">
+    <div class="flex gap-1" role="group" aria-label="Fuel type">
+      @for (fuelType of station().fuelTypes; track fuelType.id) {
+        <button
+          type="button"
+          class="rounded px-2.5 py-1 text-xs font-medium transition"
+          [class]="
+            fuelType.id === fuelTypeId()
+              ? 'bg-teal-700 text-white'
+              : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
+          "
+          (click)="selectFuelType(fuelType.id)"
+        >
+          {{ fuelType.abbreviation }}
+        </button>
+      }
+    </div>
+    <div class="flex gap-1" role="group" aria-label="Time range">
+      @for (days of rangeOptions; track days) {
+        <button
+          type="button"
+          class="rounded px-2.5 py-1 text-xs font-medium transition"
+          [class]="
+            days === rangeDays()
+              ? 'bg-slate-800 text-white'
+              : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
+          "
+          (click)="selectRange(days)"
+        >
+          {{ days }}d
+        </button>
+      }
+    </div>
+  </div>
+</div>
+
+@if (!hasFuelTypes()) {
+  <p class="text-sm text-slate-500">No fuel types known for this station, so there is no price history to show.</p>
+} @else {
+  <div class="relative h-72">
+    @if (loading()) {
+      <p class="absolute inset-0 flex items-center justify-center text-sm text-slate-500">
+        Loading price history…
+      </p>
+    }
+    <canvas baseChart type="line" [data]="chartData()" [options]="chartOptions"></canvas>
+  </div>
+}
