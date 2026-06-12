@@ -1,0 +1,69 @@
+name: Deploy UI
+on:
+    push:
+      branches: [main]
+      paths:
+        - 'FuelPriceWizard.UI/fuelpricewizard/**'
+    workflow_dispatch:   # manual deploys from the Actions tab
+
+env:
+  IMAGE: registry.mrausch-schott.com/fuelpricewizard-ui
+
+jobs:
+  build-push-sign:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # buildx on GitHub runners uses the docker-container driver,
+      # which pushes OCI media types — exactly what zot requires.
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: registry.mrausch-schott.com
+          #username: ${{ secrets.REGISTRY_USERNAME }}
+          #password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Build and push
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: FuelPriceWizard.UI/fuelpricewizard
+          push: true
+          provenance: false        # single OCI manifest, no attestation index
+          tags: |
+            ${{ env.IMAGE }}:latest
+            ${{ env.IMAGE }}:${{ github.sha }}
+
+      #- name: Scan before release
+      #  uses: aquasecurity/trivy-action@0.28.0
+      #  with:
+      #    image-ref: ${{ env.IMAGE }}:${{ github.sha }}
+      #    severity: CRITICAL
+      #    exit-code: '1'           # fail the deploy on new criticals
+
+      #- uses: sigstore/cosign-installer@v3
+
+      #- name: Sign image
+      #  env:
+      #    COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
+      #    COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
+      #  run: |
+      #    cosign sign --yes --key env://COSIGN_PRIVATE_KEY \
+      #      "${IMAGE}@${{ steps.build.outputs.digest }}"
+
+  #deploy:
+  #  needs: build-push-sign
+  #  runs-on: ubuntu-latest
+  #  steps:
+  #    - name: Roll out on server
+  #      uses: appleboy/ssh-action@v1
+  #      with:
+  #        host: ${{ secrets.DEPLOY_HOST }}
+  #        username: ${{ secrets.DEPLOY_USER }}
+  #        key: ${{ secrets.DEPLOY_SSH_KEY }}
+  #        script: |
+  #          cd /opt/fuelpricewizard
+  #          docker compose pull ui
+  #          docker compose up -d ui
