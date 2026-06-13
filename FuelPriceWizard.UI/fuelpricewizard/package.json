@@ -7,7 +7,10 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "lint": "ng lint"
+    "lint": "ng lint",
+    "docker:publish": "node scripts/docker-publish.mjs",
+    "docker:publish:latest": "node scripts/docker-publish.mjs latest",
+    "docker:publish:experimental": "node scripts/docker-publish.mjs experimental"
   },
   "private": true,
   "dependencies": {

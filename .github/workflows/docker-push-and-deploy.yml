@@ -4,6 +4,7 @@ on:
       branches: [main]
       paths:
         - 'FuelPriceWizard.UI/fuelpricewizard/**'
+        - '.github/workflows/docker-push-and-deploy.yml'
     workflow_dispatch:   # manual deploys from the Actions tab
 
 env:
