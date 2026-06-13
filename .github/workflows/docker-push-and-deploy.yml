@@ -39,12 +39,13 @@ jobs:
             ${{ env.IMAGE }}:latest
             ${{ env.IMAGE }}:${{ github.sha }}
 
-      #- name: Scan before release
-      #  uses: aquasecurity/trivy-action@0.28.0
-      #  with:
-      #    image-ref: ${{ env.IMAGE }}:${{ github.sha }}
-      #    severity: CRITICAL
-      #    exit-code: '1'           # fail the deploy on new criticals
+      - name: Scan before release
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: ${{ env.IMAGE }}:${{ github.sha }}
+          severity: CRITICAL
+          ignore-unfixed: true     # only gate on criticals that have an available fix
+          exit-code: '1'           # fail the deploy on new criticals
 
       #- uses: sigstore/cosign-installer@v3
 
