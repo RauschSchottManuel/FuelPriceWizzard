@@ -39,14 +39,12 @@ jobs:
           # defaults to a Docker schema2 manifest, which zot rejects as
           # "manifest invalid". This forces an OCI manifest zot accepts.
           outputs: type=image,oci-mediatypes=true,push=true
-          tags: |
-            ${{ env.IMAGE }}:latest
-            ${{ env.IMAGE }}:${{ github.sha }}
+          tags: ${{ env.IMAGE }}:latest
 
       - name: Scan before release
         uses: aquasecurity/trivy-action@v0.36.0
         with:
-          image-ref: ${{ env.IMAGE }}:${{ github.sha }}
+          image-ref: ${{ env.IMAGE }}:latest
           severity: CRITICAL
           ignore-unfixed: true     # only gate on criticals that have an available fix
           exit-code: '1'           # fail the deploy on new criticals
