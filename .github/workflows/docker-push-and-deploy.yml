@@ -33,8 +33,12 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: FuelPriceWizard.UI/fuelpricewizard
-          push: true
-          provenance: false        # single OCI manifest, no attestation index
+          provenance: false        # no provenance attestation (would break zot's scan)
+          sbom: false
+          # oci-mediatypes=true is required: with provenance off, buildkit
+          # defaults to a Docker schema2 manifest, which zot rejects as
+          # "manifest invalid". This forces an OCI manifest zot accepts.
+          outputs: type=image,oci-mediatypes=true,push=true
           tags: |
             ${{ env.IMAGE }}:latest
             ${{ env.IMAGE }}:${{ github.sha }}
