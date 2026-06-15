@@ -21,10 +21,11 @@ The **FetchSettings section is mandatory** and defined as follows:
 
 | Name | Description | Possible Values |
 | :- | :-:         | :-    |
+| AssemblyName | The name of the assembly / service. Used to identify the service in logs. | any string (e.g. `"DemoCollectorService"`) |
 | ExcludedWeekdays | Defines a list of weekdays where the service is not run or where the service is skipped | <ul><li>Monday</li><li>Tuesday</li><li>Wednesday</li><li>Thursday</li><li>Friday</li><li>Saturday</li><li>Sunday</li></ul> |
 | IntervalValue | Defines the interval in which the periodic service is run | any number value |
 | IntervalUnit | Defines the interval unit of the interval value (every x units) | <ul><li>Second (every x seconds)</li><li>Minute (every x minutes)</li><li>Hour (every x hours)</li></ul> |
-| StartNextFullHour | Defines if the collection circle is run with the interval starting on the next full hour or immediatly with the start of the service<br>``(e.g. service is started at 12:43 but the first collection circle starts at 13:00)`` | <ul><li>true</li><li>false</li></ul> |
+| StartNextFullHour | Defines if the collection circle is run with the interval starting on the next full hour or immediately with the start of the service<br>``(e.g. service is started at 12:43 but the first collection circle starts at 13:00)`` | <ul><li>true</li><li>false</li></ul> |
 
 ### 3. Create the entry-point class extending the [BaseFuelPriceSourceService&lt;T&gt;](../FuelPriceWizard.BusinessLogic/BaseFuelPriceSourceService.cs) class and implementing the [IFuelPriceSourceService](../FuelPriceWizard.BusinessLogic/IFuelPriceSourceService.cs) interface included in the ``FuelPriceWizard.BusinessLogic`` project
 
@@ -73,7 +74,7 @@ namespace DemoCollectorService
 {
     public class DemoCollectorService : BaseFuelPriceSourceService<DemoCollectorService>, IFuelPriceSourceService
     {
-        public DemoCollectorService(IConfiguration configuration, ILogger<DemoCollectorService> logger
+        public DemoCollectorService(IConfiguration configuration, ILogger<DemoCollectorService> logger,
             IFuelTypeRepository fuelTypeRepository, ICurrencyRepository currencyRepository)
             : base(configuration, logger, fuelTypeRepository, currencyRepository)
         {
@@ -117,7 +118,7 @@ namespace DemoCollectorService
 }
 ```
 
-5. Add the appsetings.json assembly entry in the FuelPriceWizard.DataCollector project
+5. Add the appsettings.json assembly entry in the FuelPriceWizard.DataCollector project
 
 ```json
  "ImplementationAssemblies": [
