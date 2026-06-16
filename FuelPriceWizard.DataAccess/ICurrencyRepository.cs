@@ -1,9 +1,9 @@
-﻿using FuelPriceWizard.Domain.Models;
+using FuelPriceWizard.Domain.Models;
 
 namespace FuelPriceWizard.DataAccess
 {
     public interface ICurrencyRepository : IRepository<Currency>
     {
-        Task<Currency> GetByAbbreviationAsync(string abbreviation);
+        Task<Currency> GetByAbbreviationAsync(string abbreviation, CancellationToken ct = default);
     }
 }

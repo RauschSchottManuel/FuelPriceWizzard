@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace FuelPriceWizard.DataCollector
 {
@@ -11,22 +11,22 @@ namespace FuelPriceWizard.DataCollector
         private readonly PeriodicTimer _timer = new(interval);
         private Task? _periodicTask;
 
-        private bool _isRunning = false, _disposed = false;
+        // 0 = not running, 1 = running — updated atomically to prevent concurrent Start() calls
+        private int _isRunning = 0;
+        private int _disposed = 0;
 
         public async Task Start(Func<ILogger, T, Task> function)
         {
-            if (_isRunning)
+            if (Interlocked.CompareExchange(ref _isRunning, 1, 0) != 0)
             {
                 logger.LogWarning("Attempt to start a task that is already running.");
                 return;
             }
 
-            _isRunning = true;
-
             try
             {
                 logger.LogInformation("Starting collector service ...");
-                if(_startNextFullHour)
+                if (_startNextFullHour)
                 {
                     await WaitForNextFullHourAsync();
                 }
@@ -34,13 +34,14 @@ namespace FuelPriceWizard.DataCollector
             }
             catch (Exception ex)
             {
+                Interlocked.Exchange(ref _isRunning, 0);
                 logger.LogError(ex, "Something went wrong while starting the task for {TaskName}!", nameof(T));
             }
         }
 
         public async Task StopAsync()
         {
-            if (!_isRunning)
+            if (Interlocked.Exchange(ref _isRunning, 0) == 0)
             {
                 logger.LogWarning("Attempt to stop a task that is not running.");
                 return;
@@ -48,10 +49,7 @@ namespace FuelPriceWizard.DataCollector
 
             logger.LogInformation("Stopping collector service ...");
 
-
-            _isRunning = false;
-
-            _timer.Dispose(); // Stop the timer
+            _timer.Dispose();
 
             if (_periodicTask is not null)
             {
@@ -103,20 +101,16 @@ namespace FuelPriceWizard.DataCollector
         private async Task WaitForNextFullHourAsync()
         {
             DateTime now = DateTime.UtcNow;
-
-            // Move to the next full hour
             DateTime nextFullHour = new DateTime(now.Year, now.Month, now.Day, now.Hour, 0, 0, DateTimeKind.Utc).AddHours(1);
 
-            // Log the next full hour
             logger.LogInformation("Task is configured to start at the next full hour (UTC). First execution on {NextFullHour:dd.MM.yyyy HH:mm}!", nextFullHour);
 
-            // Calculate the delay duration
             TimeSpan delay = nextFullHour - DateTime.UtcNow;
             if (delay > TimeSpan.Zero)
             {
                 try
                 {
-                    await Task.Delay(delay);
+                    await Task.Delay(delay, cancellationToken);
                 }
                 catch (TaskCanceledException ex)
                 {
@@ -129,7 +123,6 @@ namespace FuelPriceWizard.DataCollector
         {
             while (_excludedWeekdays.Contains(DateTime.UtcNow.DayOfWeek))
             {
-                // Calculate the next execution date (start of next day)
                 var nextExecutionDate = DateTime.UtcNow.Date.AddDays(1);
                 var delayDuration = nextExecutionDate - DateTime.UtcNow;
 
@@ -139,7 +132,6 @@ namespace FuelPriceWizard.DataCollector
 
                 try
                 {
-                    // Delay until the next execution time, or until canceled
                     await Task.Delay(delayDuration, cancellationToken);
                 }
                 catch (TaskCanceledException ex)
@@ -149,30 +141,22 @@ namespace FuelPriceWizard.DataCollector
             }
         }
 
-        // The public Dispose method that implements IDisposable
         public void Dispose()
         {
             Dispose(true);
-
-            // Suppress finalization since resources have already been disposed
             GC.SuppressFinalize(this);
         }
 
-        // Protected method that disposes of resources
         protected virtual void Dispose(bool disposing)
         {
-            // Check if the object has already been disposed
-            if (_disposed)
+            if (Interlocked.Exchange(ref _disposed, 1) != 0)
                 return;
 
             if (disposing)
             {
-                // Free managed resources here (e.g., managed disposable objects)
                 _timer?.Dispose();
                 logger.LogInformation("Timer disposed for {TaskType}.", nameof(T));
             }
-
-            _disposed = true;
         }
     }
 }
