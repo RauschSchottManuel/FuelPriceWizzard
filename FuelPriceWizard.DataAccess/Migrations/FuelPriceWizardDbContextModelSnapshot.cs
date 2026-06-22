@@ -35,6 +35,9 @@ namespace FuelPriceWizard.DataAccess.Migrations
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("Abbreviation");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)")
@@ -44,6 +47,9 @@ namespace FuelPriceWizard.DataAccess.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("Symbol");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id")
                         .HasName("PK_CurrencyId");
@@ -64,6 +70,9 @@ namespace FuelPriceWizard.DataAccess.Migrations
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("Abbreviation");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("DisplayValue")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)")
@@ -74,6 +83,9 @@ namespace FuelPriceWizard.DataAccess.Migrations
                         .HasColumnType("bit")
                         .HasDefaultValue(true)
                         .HasColumnName("IsActive");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id")
                         .HasName("PK_FuelTypeId");
@@ -92,6 +104,9 @@ namespace FuelPriceWizard.DataAccess.Migrations
                     b.Property<string>("Address")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Designation")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)")
@@ -107,6 +122,9 @@ namespace FuelPriceWizard.DataAccess.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
                     b.HasKey("Id")
                         .HasName("PK_GasStationId");
 
@@ -121,6 +139,9 @@ namespace FuelPriceWizard.DataAccess.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("CurrencyId")
                         .HasColumnType("int");
 
@@ -134,9 +155,12 @@ namespace FuelPriceWizard.DataAccess.Migrations
                     b.Property<int>("GasStationId")
                         .HasColumnType("int");
 
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<decimal>("Value")
-                        .HasPrecision(4, 3)
-                        .HasColumnType("decimal(4,3)")
+                        .HasPrecision(8, 4)
+                        .HasColumnType("decimal(8,4)")
                         .HasColumnName("Value");
 
                     b.HasKey("Id")
@@ -146,7 +170,8 @@ namespace FuelPriceWizard.DataAccess.Migrations
 
                     b.HasIndex("FuelTypeId");
 
-                    b.HasIndex("GasStationId");
+                    b.HasIndex("GasStationId", "FuelTypeId", "FetchedAt")
+                        .HasDatabaseName("IX_PriceReadings_GasStationId_FuelTypeId_FetchedAt");
 
                     b.ToTable("PriceReadings", (string)null);
                 });

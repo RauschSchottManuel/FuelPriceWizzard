@@ -5,6 +5,7 @@ using FuelPriceWizard.DataCollector.ConfigDefinitions;
 using FuelPriceWizard.Domain.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Http.Resilience;
 using Serilog;
 using FuelPriceWizard.BusinessLogic.Modules.Exceptions;
 using FuelPriceWizard.DataAccess.Constants;
@@ -39,9 +40,15 @@ namespace FuelPriceWizard.DataCollector
             var serviceCollection = new ServiceCollection();
             serviceCollection.AddSingleton<IConfiguration>(assemblyConfig)
                 .AddLogging(builder => builder.AddSerilog(logger: logger, dispose: true))
-                .AddFuelPriceWizardDataAccess(assemblyConfig.GetConnectionString(ConnectionStringConstants.FUEL_PRICE_WIZARD)!)
-                .AddHttpClient()
-                .AddScoped<IFuelPriceSourceService, T>();
+                .AddFuelPriceWizardDataAccess(assemblyConfig.GetConnectionString(ConnectionStringConstants.FUEL_PRICE_WIZARD)!);
+
+            serviceCollection.AddHttpClient<IFuelPriceSourceService, T>()
+                .AddStandardResilienceHandler()
+                .Configure(options =>
+                {
+                    options.Retry.MaxRetryAttempts = 3;
+                    options.CircuitBreaker.SamplingDuration = TimeSpan.FromSeconds(30);
+                });
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
             service = serviceProvider.GetService<IFuelPriceSourceService>()!;

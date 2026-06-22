@@ -1,7 +1,9 @@
-﻿using AutoMapper;
+using AutoMapper;
 using FuelPriceWizard.API.DTOs;
-using FuelPriceWizard.DataAccess;
+using FuelPriceWizard.BusinessLogic;
+using FuelPriceWizard.DataAccess.Exceptions;
 using FuelPriceWizard.Domain.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net.Mime;
 
@@ -9,92 +11,92 @@ namespace FuelPriceWizard.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class GasStationsController : ControllerBase
+    public class GasStationsController(ILogger<GasStationsController> logger, IMapper mapper, IFuelPriceWizardService service) : ControllerBase
     {
-        private readonly ILogger<GasStationsController> logger;
-        private readonly IMapper mapper;
-        private readonly IGasStationRepository gasStationRepository;
-
-        public GasStationsController(ILogger<GasStationsController> logger, IMapper mapper, IGasStationRepository gasStationRepository)
-        {
-            this.logger = logger;
-            this.mapper = mapper;
-            this.gasStationRepository = gasStationRepository;
-        }
-
-        [HttpGet("all")]
+        [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [Produces(MediaTypeNames.Application.Json)]
-        public async Task<ActionResult<IEnumerable<GasStationDto>>> GetAll()
+        public async Task<ActionResult<PagedResult<GasStationDto>>> GetAll(
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 20,
+            CancellationToken ct = default)
         {
-            var gasStations = await this.gasStationRepository.GetAllAsync();
-            return this.Ok(this.mapper.Map<IEnumerable<GasStationDto>>(gasStations));
+            var (items, total) = await service.GetGasStationsPagedAsync(page, pageSize, ct);
+            return Ok(new PagedResult<GasStationDto>
+            {
+                Items = mapper.Map<IEnumerable<GasStationDto>>(items),
+                TotalCount = total,
+                Page = page,
+                PageSize = pageSize,
+            });
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Produces(MediaTypeNames.Application.Json)]
-        public async Task<ActionResult<GasStationDto>> GetById(int id)
+        public async Task<ActionResult<GasStationDto>> GetById(int id, CancellationToken ct = default)
         {
-            var gasStation = await this.gasStationRepository.GetByIdAsync(id);
-
-            if(gasStation is null)
+            var gasStation = await service.GetGasStationByIdAsync(id, ct);
+            if (gasStation is null)
             {
-                this.logger.LogWarning("No gas station found with id {Id}!", id);
-                return this.NotFound();
+                logger.LogWarning("No gas station found with id {Id}!", id);
+                return NotFound();
             }
-
-            return this.Ok(gasStation);
+            return Ok(mapper.Map<GasStationDto>(gasStation));
         }
 
-        [HttpPost("new")]
+        [Authorize]
+        [HttpPost]
         [Consumes(MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [Produces(MediaTypeNames.Application.Json)]
-        public async Task<ActionResult<GasStationDto>> InsertNew([FromBody] GasStationDto gasStation)
-        {
-            if(!ModelState.IsValid)
-            {
-                this.logger.LogError("Invalid gas station provided: {GasStation}!", gasStation);
-                return this.BadRequest(ModelState);
-            }
-
-            var insertedStation = await this.gasStationRepository.InsertAsync(this.mapper.Map<GasStation>(gasStation));
-
-            var resourceUri = Url.Action(nameof(GetById), new {id = insertedStation.Id});
-
-            return this.Created(resourceUri, insertedStation);
-        }
-
-        [HttpPut("edit/{id}")]
-        [Consumes(MediaTypeNames.Application.Json)]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [Produces(MediaTypeNames.Application.Json)]
-        public async Task<ActionResult<GasStationDto>> Update(int id, [FromBody] GasStationDto gasStation)
+        public async Task<ActionResult<GasStationDto>> Insert([FromBody] GasStationDto dto, CancellationToken ct = default)
         {
             if (!ModelState.IsValid)
             {
-                this.logger.LogError("Invalid gas station provided: {GasStation}!", gasStation);
-                return this.BadRequest(ModelState);
+                logger.LogError("Invalid gas station provided: {GasStation}!", dto);
+                return BadRequest(ModelState);
             }
-
-            var updatedGasStation = await this.gasStationRepository.UpdateAsync(id, this.mapper.Map<GasStation>(gasStation));
-
-            return this.Ok(updatedGasStation);
+            var inserted = await service.CreateGasStationAsync(mapper.Map<GasStation>(dto), ct);
+            var resourceUri = Url.Action(nameof(GetById), new { id = inserted.Id });
+            return Created(resourceUri, mapper.Map<GasStationDto>(inserted));
         }
 
-        [HttpDelete("delete/{id}")]
+        [Authorize]
+        [HttpPut("{id:int}")]
         [Consumes(MediaTypeNames.Application.Json)]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        public async Task<ActionResult<GasStationDto>> Delete(int id)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Produces(MediaTypeNames.Application.Json)]
+        public async Task<ActionResult<GasStationDto>> Update(int id, [FromBody] GasStationDto dto, CancellationToken ct = default)
         {
-            var result = await this.gasStationRepository.DeleteByIdAsync(id);
-
-            return this.NoContent();
+            if (!ModelState.IsValid)
+            {
+                logger.LogError("Invalid gas station provided: {GasStation}!", dto);
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var updated = await service.UpdateGasStationAsync(id, mapper.Map<GasStation>(dto), ct);
+                return Ok(mapper.Map<GasStationDto>(updated));
+            }
+            catch (NotFoundException)
+            {
+                return NotFound();
+            }
         }
 
+        [Authorize]
+        [HttpDelete("{id:int}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> Delete(int id, CancellationToken ct = default)
+        {
+            var deleted = await service.DeleteGasStationAsync(id, ct);
+            return deleted ? NoContent() : NotFound();
+        }
     }
 }

@@ -24,9 +24,7 @@ namespace FuelPriceWizard.DataCollector
 
             var orchestrator = host.Services.GetRequiredService<IDataCollectorOrchestrator>();
 
-            orchestrator.CreateTasks();
-
-            orchestrator.StartTasks();
+            await orchestrator.StartAsync();
 
             orchestrator.WatchForConfigurationChanges();
 
@@ -58,7 +56,7 @@ namespace FuelPriceWizard.DataCollector
             services.AddSingleton<IConfiguration>(config)
                 .AddLogging(builder => builder.AddSerilog(logger: logger, dispose: true))
                 .AddFuelPriceWizardDataAccess(config.GetConnectionString(ConnectionStringConstants.FUEL_PRICE_WIZARD)!)
-                .AddScoped<IDataCollectorOrchestrator, DataCollectorOrchestrator>();
+                .AddSingleton<IDataCollectorOrchestrator, DataCollectorOrchestrator>();
 
             return services;
         }
